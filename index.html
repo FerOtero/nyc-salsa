@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0A2560">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NUEVA YORK">
+<title>NUEVA YORK · Sonidero Map</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chango&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  :root{
+    --ink:#0E2E7A; --grape:#0A2560; --paper:#F5E9CC; --paper2:#EAD6A0;
+    --pink:#FF2E9A; --turq:#17C3E6; --gold:#FFD21E; --tang:#FF7A1A;
+    --violet:#7A3FF2; --blue:#1E8FE0; --lime:#159A5B; --amber:#FB8500; --red:#E4231A;
+    --line:rgba(245,233,204,.18);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:'DM Sans',system-ui,sans-serif;color:var(--paper);
+    background:var(--ink);
+    background-image:
+      radial-gradient(circle at 50% -8%, rgba(255,210,30,.20), transparent 46%),
+      radial-gradient(circle at 10% 14%, rgba(228,35,26,.16), transparent 42%),
+      radial-gradient(circle at 92% 20%, rgba(23,195,230,.16), transparent 46%),
+      linear-gradient(180deg,#123FA6,#0E2E7A 55%,#0A2560);
+    background-attachment:fixed;
+    overflow:hidden;
+  }
+  .app{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:820px;margin:0 auto;position:relative}
+
+  /* ---------- HEADER ---------- */
+  header{
+    padding:calc(env(safe-area-inset-top) + 12px) 16px 10px;
+    background:
+      repeating-linear-gradient(45deg, rgba(255,210,30,.07) 0 12px, transparent 12px 24px),
+      linear-gradient(180deg,#0A2560,#0E2E7A);
+    border-bottom:4px solid var(--gold);
+    position:relative;overflow:hidden;flex:0 0 auto;
+  }
+  header::before{ /* starburst */
+    content:"";position:absolute;top:-60px;right:-40px;width:190px;height:190px;
+    background:conic-gradient(from 0deg,
+      var(--gold) 0 15deg, transparent 15deg 30deg, var(--red) 30deg 45deg, transparent 45deg 60deg,
+      var(--tang) 60deg 75deg, transparent 75deg 90deg, var(--turq) 90deg 105deg, transparent 105deg 120deg,
+      var(--gold) 120deg 135deg, transparent 135deg 150deg, var(--red) 150deg 165deg, transparent 165deg 180deg,
+      var(--tang) 180deg 195deg, transparent 195deg 210deg, var(--turq) 210deg 225deg, transparent 225deg 240deg,
+      var(--gold) 240deg 255deg, transparent 255deg 270deg, var(--red) 270deg 285deg, transparent 285deg 300deg,
+      var(--tang) 300deg 315deg, transparent 315deg 330deg, var(--turq) 330deg 345deg, transparent 345deg 360deg);
+    opacity:.32;border-radius:50%;filter:blur(.3px);pointer-events:none;
+  }
+  .kicker{font-family:'Chango';font-size:11px;letter-spacing:2px;color:var(--turq);text-transform:uppercase;position:relative}
+  h1{
+    font-family:'Chango',system-ui;font-weight:400;margin:4px 0 0;line-height:.9;
+    font-size:clamp(42px,13.5vw,74px);letter-spacing:1px;position:relative;text-transform:uppercase;
+    color:var(--red);-webkit-text-stroke:2px var(--gold);paint-order:stroke fill;
+    text-shadow:0 0 4px var(--tang), 0 0 12px rgba(255,176,30,.85), 0 0 22px rgba(255,210,30,.55), 4px 5px 0 #7A0D06;
+  }
+  h1 span{display:block;font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;color:var(--paper);
+    -webkit-text-stroke:0;text-shadow:1px 1px 0 rgba(0,0,0,.4);letter-spacing:4px;margin-top:8px;text-transform:uppercase}
+  .tagline{font-size:12.5px;color:var(--paper2);margin-top:6px;position:relative;font-weight:500}
+
+  /* ---------- SEARCH + TABS ---------- */
+  .toolbar{display:flex;gap:8px;margin-top:12px;position:relative}
+  .search{flex:1;display:flex;align-items:center;gap:8px;background:rgba(251,233,208,.10);
+    border:2px solid var(--line);border-radius:40px;padding:9px 14px}
+  .search input{flex:1;background:none;border:0;color:var(--paper);font-size:15px;font-family:inherit;outline:none}
+  .search input::placeholder{color:rgba(251,233,208,.5)}
+  .search svg{flex:0 0 auto}
+
+  .tabs{display:flex;gap:6px;padding:10px 16px 0;position:relative;flex:0 0 auto;background:linear-gradient(180deg,#0A2560,transparent)}
+  .tab{flex:1;font-family:'Chango';font-size:11px;letter-spacing:.5px;text-transform:uppercase;
+    padding:10px 6px;border-radius:12px 12px 0 0;border:2px solid var(--line);border-bottom:0;
+    background:rgba(251,233,208,.06);color:var(--paper2);cursor:pointer;transition:.15s}
+  .tab.on{background:var(--gold);color:#0A2560}
+  .tab:focus-visible{outline:3px solid var(--turq);outline-offset:2px}
+
+  /* ---------- FILTER CHIPS ---------- */
+  .filters{padding:10px 0 8px;flex:0 0 auto;border-top:2px solid var(--line);background:rgba(10,37,96,.6)}
+  .chiprow{display:flex;gap:7px;overflow-x:auto;padding:0 16px 2px;scrollbar-width:none}
+  .chiprow::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;font-size:12.5px;font-weight:700;padding:7px 12px;border-radius:40px;
+    border:2px solid var(--c,var(--paper2));color:var(--paper);background:transparent;cursor:pointer;
+    white-space:nowrap;display:flex;align-items:center;gap:5px;transition:.12s}
+  .chip .dot{width:9px;height:9px;border-radius:50%;background:var(--c,#fff)}
+  .chip.on{background:var(--c,var(--gold));color:#0A2560}
+  .chip.on .dot{background:#0A2560}
+  .chip:focus-visible{outline:3px solid var(--turq);outline-offset:2px}
+  .hoodrow{display:flex;gap:7px;overflow-x:auto;padding:8px 16px 0;scrollbar-width:none}
+  .hoodrow::-webkit-scrollbar{display:none}
+  .boro{flex:0 0 auto;font-family:'Chango';font-size:10px;letter-spacing:.5px;text-transform:uppercase;
+    padding:6px 11px;border-radius:8px;border:2px solid var(--line);background:transparent;color:var(--paper2);cursor:pointer}
+  .boro.on{background:var(--pink);color:#0A2560;border-color:var(--pink)}
+  .favbtn{border-color:var(--gold);color:var(--gold)}
+  .favbtn.on{background:var(--gold);color:#0A2560;border-color:var(--gold)}
+  .count{font-size:11.5px;color:var(--paper2);padding:6px 16px 0;font-weight:500}
+
+  /* ---------- PANELS ---------- */
+  .panel{flex:1 1 auto;position:relative;overflow:hidden;min-height:0}
+  .view{position:absolute;inset:0;display:none}
+  .view.on{display:block}
+  #map{width:100%;height:100%;background:#0A2560}
+  .listwrap{position:absolute;inset:0;overflow-y:auto;padding:12px 16px calc(env(safe-area-inset-bottom) + 24px);-webkit-overflow-scrolling:touch}
+  .cards{display:grid;grid-template-columns:1fr;gap:11px}
+  @media(min-width:560px){.cards{grid-template-columns:1fr 1fr}}
+  .card{background:var(--paper);color:#12245E;border-radius:16px;padding:14px 14px 12px;position:relative;
+    box-shadow:5px 5px 0 rgba(0,0,0,.35);border:2px solid #12245E;overflow:hidden}
+  .card::before{content:"";position:absolute;top:0;left:0;width:100%;height:7px;background:var(--c,var(--pink))}
+  .card .catline{display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--c);margin-top:2px}
+  .card h3{font-family:'Chango';font-weight:400;font-size:20px;line-height:1;margin:6px 0 2px;letter-spacing:.4px}
+  .card .hood{font-size:12px;color:#6a5a44;font-weight:700;margin-bottom:6px}
+  .card p{font-size:13px;line-height:1.35;margin:0 0 10px;color:#3a2b1c}
+  .card .foot{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .btn{font-family:'Chango';font-size:10px;letter-spacing:.3px;text-transform:uppercase;text-decoration:none;
+    padding:8px 12px;border-radius:9px;border:2px solid #12245E;color:#12245E;background:var(--gold);cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+  .btn.ghost{background:transparent}
+  .btn:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
+  .fav{margin-left:auto;background:none;border:0;font-size:20px;cursor:pointer;line-height:1;color:#c9b48f}
+  .fav.on{color:var(--pink)}
+  .empty{text-align:center;padding:60px 24px;color:var(--paper2)}
+  .empty b{font-family:'Chango';font-size:24px;display:block;color:var(--paper);margin-bottom:6px}
+
+  /* ---------- DAY TRIP ---------- */
+  .day{position:absolute;inset:0;overflow-y:auto;padding:14px 16px calc(env(safe-area-inset-bottom) + 30px)}
+  .daycard{background:rgba(251,233,208,.07);border:2px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
+  .daycard h2{font-family:'Chango';font-size:14px;margin:0 0 4px;color:var(--gold);letter-spacing:.5px}
+  .daycard p.help{font-size:12.5px;color:var(--paper2);margin:0 0 12px}
+  label.fld{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--turq);margin:10px 0 5px}
+  .pillrow{display:flex;flex-wrap:wrap;gap:7px}
+  .pill{font-size:12.5px;font-weight:700;padding:8px 13px;border-radius:40px;border:2px solid var(--line);background:transparent;color:var(--paper);cursor:pointer}
+  .pill.on{background:var(--turq);color:#08201f;border-color:var(--turq)}
+  .go{width:100%;margin-top:16px;font-family:'Chango';font-size:14px;letter-spacing:1px;text-transform:uppercase;
+    padding:15px;border-radius:14px;border:3px solid #0A2560;color:#0A2560;
+    background:linear-gradient(92deg,var(--red),var(--tang),var(--gold));cursor:pointer;box-shadow:4px 4px 0 rgba(0,0,0,.4)}
+  .go:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.4)}
+  .stop{display:flex;gap:12px;padding:12px 0;border-bottom:1px dashed var(--line)}
+  .stop:last-child{border-bottom:0}
+  .num{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--c,var(--pink));color:#0A2560;
+    font-family:'Chango';font-size:15px;display:grid;place-items:center}
+  .stop .info h4{font-family:'Chango';font-weight:400;font-size:18px;margin:2px 0 1px;letter-spacing:.3px}
+  .stop .info .meta{font-size:11.5px;color:var(--paper2);font-weight:600}
+  .stop .info p{font-size:12.5px;margin:5px 0 0;color:var(--paper)}
+  .routebtns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+
+  /* ---------- LEAFLET MARKERS / POPUP ---------- */
+  .pin{width:20px;height:20px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+    border:2.5px solid #0A2560;box-shadow:1px 2px 3px rgba(0,0,0,.4)}
+  .pin.fav{box-shadow:0 0 0 3px var(--pink),1px 2px 3px rgba(0,0,0,.4)}
+  .leaflet-popup-content-wrapper{background:var(--paper);color:#12245E;border-radius:14px;border:2px solid #12245E;box-shadow:4px 4px 0 rgba(0,0,0,.35)}
+  .leaflet-popup-tip{background:var(--paper);border:2px solid #12245E}
+  .pop .pc{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--c)}
+  .pop h3{font-family:'Chango';font-weight:400;font-size:19px;margin:3px 0 1px}
+  .pop .ph{font-size:11.5px;color:#6a5a44;font-weight:700}
+  .pop p{font-size:12.5px;margin:6px 0 8px;color:#3a2b1c;max-width:210px}
+  .pop a{font-family:'Chango';font-size:10px;text-transform:uppercase;text-decoration:none;color:#12245E;background:var(--gold);border:2px solid #12245E;padding:6px 10px;border-radius:8px;display:inline-block}
+  .leaflet-control-attribution{font-size:9px}
+  .legend{position:absolute;left:10px;bottom:14px;background:rgba(10,37,96,.9);border:2px solid var(--line);border-radius:12px;padding:9px 11px;font-size:10.5px;z-index:500;max-width:150px}
+  .legend b{font-family:'Chango';font-size:9px;letter-spacing:.5px;display:block;margin-bottom:5px;color:var(--gold)}
+  .legend .lg{display:flex;align-items:center;gap:6px;margin:2px 0;font-weight:600}
+  .legend .lg i{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+  .note{font-size:11px;color:var(--paper2);text-align:center;padding:0 16px 10px;opacity:.8}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="kicker">★&nbsp;★&nbsp;★&nbsp;&nbsp;New York All-Stars&nbsp;&nbsp;★&nbsp;★&nbsp;★</div>
+    <h1>Nueva York<span>vintage · food · art · fleas</span></h1>
+    <div class="tagline">Your hand-picked list — filter by neighborhood or vibe, then let it build your day.</div>
+    <div class="toolbar">
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FBE9D0" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="q" type="search" placeholder="Search a spot…" autocomplete="off" aria-label="Search places">
+      </div>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab on" data-tab="map">🗺 Map</button>
+    <button class="tab" data-tab="list">☰ List</button>
+    <button class="tab" data-tab="day">✦ Day Trip</button>
+  </div>
+
+  <div class="filters" id="filters">
+    <div class="chiprow" id="cats"></div>
+    <div class="hoodrow" id="boros"></div>
+    <div class="count" id="count"></div>
+  </div>
+
+  <div class="panel">
+    <section class="view on" data-view="map"><div id="map"></div>
+      <div class="legend" id="legend"></div>
+    </section>
+    <section class="view" data-view="list"><div class="listwrap"><div class="cards" id="cards"></div></div></section>
+    <section class="view" data-view="day"><div class="day" id="dayPanel"></div></section>
+  </div>
+</div>
+
+<script>
+/* ============ CATEGORIES ============ */
+const CAT = {
+  vintage:{label:"Vintage & Thrift", c:"#FF2E9A", e:"🧥"},
+  food:{label:"Food", c:"#E4231A", e:"🍽️"},
+  cafe:{label:"Cafés & Bakeries", c:"#F2A100", e:"☕"},
+  drinks:{label:"Bars & Music", c:"#7A3FF2", e:"🎷"},
+  shops:{label:"Shops & Curiosities", c:"#17C3E6", e:"🛍️"},
+  art:{label:"Art & Culture", c:"#FF7A1A", e:"🎨"},
+  market:{label:"Flea Markets", c:"#159A5B", e:"🛒"},
+  green:{label:"Green", c:"#00B3A4", e:"🌳"}
+};
+const BOROS = {MAN:"Manhattan", BK:"Brooklyn", QNS:"Queens", BX:"Bronx", WCH:"Westchester"};
+
+/* ============ THE LIST ============ */
+const P = [
+ // MANHATTAN
+ {n:"Sunny & Annie's Deli",c:"food",h:"East Village",b:"MAN",lat:40.724645,lng:-73.981711,a:"94 Avenue B",bl:"24-hour deli famous for wild pho & bulgogi sandwiches."},
+ {n:"Greenwich Locksmiths",c:"shops",h:"West Village",b:"MAN",lat:40.7314296,lng:-74.004262,a:"56 7th Ave S",bl:"Cult keyhole storefront; handmade subway-token keys."},
+ {n:"Jeju Noodle Bar",c:"food",h:"West Village",b:"MAN",lat:40.7329889,lng:-74.0073417,a:"679 Greenwich St",bl:"Michelin-starred Korean; the toro ssam bap is the move."},
+ {n:"Casey Rubber Stamps",c:"shops",h:"East Village",b:"MAN",lat:40.7297861,lng:-73.9851833,a:"322 E 11th St",bl:"Old-school custom rubber stamps made while you wait."},
+ {n:"C&B Cafe",c:"cafe",h:"East Village",b:"MAN",lat:40.7251413,lng:-73.9816557,a:"178 E 7th St",bl:"Tiny café; the pig-and-egg sandwich is legendary."},
+ {n:"Poseidon Bakery",c:"cafe",h:"Hell's Kitchen",b:"MAN",lat:40.7600743,lng:-73.9917478,a:"629 9th Ave",bl:"5th-gen Greek bakery, phyllo still rolled by hand."},
+ {n:"Pecking House",c:"food",h:"Chinatown",b:"MAN",lat:40.7132824,lng:-73.9934821,a:"83 Henry St",bl:"Chef Eric Huang's viral chili fried chicken."},
+ {n:"Katagiri (Gonbei)",c:"shops",h:"Midtown East",b:"MAN",lat:40.7509054,lng:-73.9771227,a:"370 Lexington Ave",bl:"Japanese grocery with Omusubi Gonbei rice balls inside."},
+ {n:"Faicco's Italian Specialties",c:"food",h:"West Village",b:"MAN",lat:40.7311186,lng:-74.0031248,a:"260 Bleecker St",bl:"125-year-old deli stacking mile-high Italian heroes."},
+ {n:"Tokio 7",c:"vintage",h:"East Village",b:"MAN",lat:40.7272639,lng:-73.9861417,a:"83 E 7th St",bl:"High-end designer consignment full of grails."},
+ {n:"Metropolis Vintage",c:"vintage",h:"Greenwich Village",b:"MAN",lat:40.7327132,lng:-73.9913922,a:"803 Broadway",bl:"Two floors of band tees, denim & Americana."},
+ {n:"Procell",c:"vintage",h:"Lower East Side",b:"MAN",lat:40.7199665,lng:-73.9936577,a:"5 Delancey St",bl:"Mike Procell's museum-grade vintage tees."},
+ {n:"Casa Magazines",c:"shops",h:"West Village",b:"MAN",lat:40.7376595,lng:-74.0045009,a:"22 8th Ave",bl:"Cramped, iconic international magazine paradise."},
+ {n:"Anthology Film Archives",c:"art",h:"East Village",b:"MAN",lat:40.7246939,lng:-73.9901657,a:"32 2nd Ave",bl:"Temple of avant-garde & experimental cinema."},
+ {n:"Café Sabarsky",c:"cafe",h:"Upper East Side",b:"MAN",lat:40.7812357,lng:-73.9602568,a:"1048 5th Ave",bl:"Viennese café inside the Neue Galerie."},
+ {n:"Wu's Wonton King",c:"food",h:"Lower East Side",b:"MAN",lat:40.7138317,lng:-73.989964,a:"165 E Broadway",bl:"BYOB Cantonese feast hall; get the Peking duck."},
+ {n:"Colbo",c:"shops",h:"Lower East Side",b:"MAN",lat:40.7165595,lng:-73.9912397,a:"51 Orchard St",bl:"Beautifully curated clothing + coffee + wine bar."},
+ {n:"Whitney Museum",c:"art",h:"Meatpacking",b:"MAN",lat:40.7395877,lng:-74.0088629,a:"99 Gansevoort St",bl:"American art with terraces over the High Line."},
+ {n:"The Met",c:"art",h:"Upper East Side",b:"MAN",lat:40.7794366,lng:-73.963244,a:"1000 5th Ave",bl:"The encyclopedic giant — a full day on its own."},
+ {n:"Perrotin New York",c:"art",h:"Lower East Side",b:"MAN",lat:40.7195864,lng:-73.9892543,a:"130 Orchard St",bl:"Three floors of free contemporary shows."},
+ {n:"P.E. Guerin",c:"shops",h:"West Village",b:"MAN",lat:40.7382889,lng:-74.0032569,a:"23 Jane St",bl:"Since 1857 — a working decorative-hardware foundry."},
+ {n:"Chelsea Flea",c:"market",h:"Chelsea",b:"MAN",lat:40.74382,lng:-73.990336,a:"29 W 25th St",bl:"Weekend antiques & vintage market in Manhattan."},
+ {n:"Philip Williams Posters",c:"art",h:"Tribeca",b:"MAN",lat:40.7151633,lng:-74.0087077,a:"122 Chambers St",bl:"Cavernous archive of original vintage posters & prints."},
+ {n:"Village Revival Records",c:"drinks",h:"Greenwich Village",b:"MAN",lat:40.7294262,lng:-74.0014722,a:"197 Bleecker St",bl:"Late-night used vinyl; ask Jamal for a rec."},
+ {n:"Taikii Cafe",c:"cafe",h:"Lower East Side",b:"MAN",lat:40.7196639,lng:-73.9849518,a:"55 Clinton St",bl:"Warm coffee + inari sushi with vinyl spinning."},
+ {n:"Montagu's Gusto",c:"food",h:"Kips Bay",b:"MAN",lat:40.745711,lng:-73.975531,a:"645 2nd Ave",bl:"Focaccia sandwiches gone viral for a reason."},
+ {n:"Sendo",c:"food",h:"NoMad",b:"MAN",lat:40.7479626,lng:-73.9889288,a:"876 6th Ave, 2nd Fl",bl:"Absurdly affordable, no-tip omakase sets."},
+ {n:"Hay Hay Roasted",c:"food",h:"Chinatown",b:"MAN",lat:40.7165791,lng:-73.9980362,a:"81 Mott St",bl:"Cash-only Cantonese roast duck hole-in-the-wall."},
+ {n:"Yan's Antique Jewelry",c:"shops",h:"Chinatown",b:"MAN",lat:40.7148458,lng:-73.9986399,a:"35 Pell St",bl:"Family-run treasure box of vintage watches."},
+ {n:"Zaidi's NYC",c:"shops",h:"Lower East Side",b:"MAN",lat:40.7143643,lng:-73.990969,a:"139 Division St",bl:"Sammy's tiny museum of antique lighters & oddities."},
+ {n:"Theo's Haberdashery",c:"vintage",h:"East Village",b:"MAN",lat:40.7288567,lng:-73.9897548,a:"13 E 7th St",bl:"Vintage watches, rings, Americana & ephemera."},
+ {n:"Library180",c:"shops",h:"Financial District",b:"MAN",lat:40.7052519,lng:-74.0053117,a:"180 Maiden Ln, 26th Fl",bl:"By appointment: a private archive of rare magazines."},
+ {n:"194 New York",c:"vintage",h:"Lower East Side",b:"MAN",lat:40.7171811,lng:-73.9923057,a:"86 Eldridge St",bl:"Tight, top-tier curation — Stone Island, Prada Sport."},
+ {n:"Chambers",c:"drinks",h:"Tribeca",b:"MAN",lat:40.7145903,lng:-74.0075468,a:"94 Chambers St",bl:"Precise small plates & a genius natural wine list."},
+ {n:"Ludlow Flea",c:"market",h:"Lower East Side",b:"MAN",lat:40.721048,lng:-73.9880419,a:"159 Ludlow St",bl:"Small open-lot vintage market, Wed–Sun."},
+ {n:"St. Anthony's / Sullivan Market",c:"market",h:"SoHo",b:"MAN",lat:40.7277478,lng:-74.0018494,a:"W Houston & Sullivan St",bl:"Sweet weekend market — hit Paul's vintage stand."},
+ {n:"Showplace Fine Art & Estate",c:"shops",h:"Upper East Side",b:"MAN",lat:40.7684902,lng:-73.968097,a:"790 Madison Ave #402",bl:"Estate art, furniture & luxury finds."},
+ {n:"District One",c:"vintage",h:"Lower East Side",b:"MAN",lat:40.721208,lng:-73.9872093,a:"114 Stanton St",bl:"Grail-tier sneakers & Supreme resale."},
+ {n:"Church Street Surplus",c:"vintage",h:"Tribeca",b:"MAN",lat:40.720144,lng:-74.003561,a:"327 Church St",bl:"Old-school army-navy surplus — deadstock military jackets & real workwear."},
+ {n:"6BC Botanical Garden",c:"green",h:"East Village",b:"MAN",lat:40.7238154,lng:-73.9807078,a:"630 E 6th St",bl:"Hidden community garden with a treehouse (weekends)."},
+ {n:"Luke's",c:"vintage",h:"Lower East Side",b:"MAN",lat:40.7181107,lng:-73.9904389,a:"261 Broome St",bl:"Lucas Fracher's premier men's vintage & designer."},
+ {n:"Immaculate Conception Flea",c:"market",h:"East Village",b:"MAN",lat:40.7309294,lng:-73.9820759,a:"414 E 14th St",bl:"Flea market inside a landmark 1890s church."},
+ {n:"Other People's Clothes",c:"vintage",h:"Union Square",b:"MAN",lat:40.7325961,lng:-73.9904701,a:"112 4th Ave",bl:"Vintage + designer with by-the-tag color sales."},
+ {n:"2nd Street — UWS",c:"vintage",h:"Upper West Side",b:"MAN",lat:40.79338,lng:-73.97312,a:"2519 Broadway",bl:"Japanese secondhand chain — premium condition."},
+ {n:"2nd Street — Morningside",c:"vintage",h:"Morningside Hts",b:"MAN",lat:40.80537,lng:-73.96624,a:"2875 Broadway",bl:"Japanese secondhand chain by Columbia."},
+ {n:"2nd Street — Union Sq",c:"vintage",h:"Union Square",b:"MAN",lat:40.734385,lng:-73.992828,a:"110 University Pl",bl:"Japanese secondhand chain."},
+ {n:"2nd Street — UES",c:"vintage",h:"Upper East Side",b:"MAN",lat:40.770877,lng:-73.959939,a:"1282 3rd Ave",bl:"Japanese secondhand chain."},
+ {n:"2nd Street — SoHo",c:"vintage",h:"SoHo",b:"MAN",lat:40.719359,lng:-74.000722,a:"27 Howard St",bl:"Japanese secondhand chain."},
+ {n:"2nd Street — Chelsea",c:"vintage",h:"Chelsea",b:"MAN",lat:40.745276,lng:-73.993378,a:"142 W 26th St",bl:"Japanese secondhand chain."},
+ {n:"2nd Street — NoHo",c:"vintage",h:"NoHo",b:"MAN",lat:40.728788,lng:-73.993539,a:"712 Broadway",bl:"Japanese secondhand chain."},
+ {n:"2nd Street — LES",c:"vintage",h:"Lower East Side",b:"MAN",lat:40.721935,lng:-73.988164,a:"180 Orchard St",bl:"Japanese secondhand chain."},
+ {n:"2nd Street — 8th Ave",c:"vintage",h:"Chelsea",b:"MAN",lat:40.7436,lng:-73.9997,a:"189 8th Ave",bl:"Japanese secondhand chain (newest NYC store)."},
+ // QUEENS
+ {n:"Zapatería Mexico",c:"shops",h:"Jackson Heights",b:"QNS",lat:40.7484289,lng:-73.8780375,a:"88-07 Roosevelt Ave",bl:"Western boots, hats & belts straight from Guanajuato."},
+ {n:"Myrtle Pub",c:"drinks",h:"Ridgewood",b:"QNS",lat:40.7005496,lng:-73.9040958,a:"56-53 Myrtle Ave",bl:"Dive with free popcorn, free hot dogs, cheap beer."},
+ {n:"Merguez and Frites",c:"food",h:"Astoria",b:"QNS",lat:40.7677175,lng:-73.9114921,a:"40-06 25th Ave",bl:"Algerian hole-in-the-wall; the merguez sando slaps."},
+ // BROOKLYN
+ {n:"Front General Store",c:"vintage",h:"Dumbo",b:"BK",lat:40.7025494,lng:-73.9872752,a:"143 Front St",bl:"Rugged new & vintage menswear, tightly curated."},
+ {n:"Aunts et Uncles",c:"food",h:"Flatbush",b:"BK",lat:40.6520677,lng:-73.9495411,a:"1407 Nostrand Ave",bl:"Beloved vegan spot — the lasagna converts skeptics."},
+ {n:"Ornithology Jazz Club",c:"drinks",h:"Bushwick",b:"BK",lat:40.6955888,lng:-73.9319823,a:"6 Suydam St",bl:"Tucked-away jazz; student nights are a steal."},
+ {n:"Gertrude's",c:"food",h:"Prospect Heights",b:"BK",lat:40.6790422,lng:-73.9715398,a:"605 Carlton Ave",bl:"Latkes, smoked fish & great cocktails."},
+ {n:"Peter Pan Donut",c:"cafe",h:"Greenpoint",b:"BK",lat:40.7260834,lng:-73.9523074,a:"727 Manhattan Ave",bl:"Cash-only old-school donuts; bring an appetite."},
+ {n:"Vinnie's Pizzeria",c:"food",h:"Williamsburg",b:"BK",lat:40.7188807,lng:-73.9567755,a:"148 Bedford Ave",bl:"Meme-famous slices, killer crust, vegan options."},
+ {n:"Win Son",c:"food",h:"East Williamsburg",b:"BK",lat:40.7074661,lng:-73.9434952,a:"159 Graham Ave",bl:"Taiwanese-American; hit the bakery across the street too."},
+ {n:"Rhodora",c:"drinks",h:"Fort Greene",b:"BK",lat:40.6917328,lng:-73.9714244,a:"197 Adelphi St",bl:"Zero-waste natural wine bar, order-at-the-bar style."},
+ {n:"L&B Spumoni Gardens",c:"food",h:"Bensonhurst",b:"BK",lat:40.5947371,lng:-73.9812873,a:"2725 86th St",bl:"Legendary upside-down Sicilian squares + spumoni."},
+ {n:"10 Ft Single (Stella Dallas)",c:"vintage",h:"Williamsburg",b:"BK",lat:40.7144459,lng:-73.9535337,a:"285 N 6th St",bl:"Massive, well-organized Americana vintage."},
+ {n:"Beacon's Closet — Greenpoint",c:"vintage",h:"Greenpoint",b:"BK",lat:40.7236258,lng:-73.9525832,a:"74 Guernsey St",bl:"The big flagship — dig for gems at fair prices."},
+ {n:"Beacon's Closet — Park Slope",c:"vintage",h:"Park Slope",b:"BK",lat:40.6801598,lng:-73.9780866,a:"92 5th Ave",bl:"Smaller Slope branch of the vintage staple."},
+ {n:"Beacon's Closet — Bushwick",c:"vintage",h:"Bushwick",b:"BK",lat:40.7040462,lng:-73.9332974,a:"23 Bogart St",bl:"Bushwick branch, cheaper tags than most."},
+ {n:"Yoseka Stationery",c:"shops",h:"Greenpoint",b:"BK",lat:40.7285107,lng:-73.959155,a:"63 West St",bl:"Dreamy Asian stationery; test every pen."},
+ {n:"Bersi Ethiopian",c:"food",h:"Greenpoint",b:"BK",lat:40.7346617,lng:-73.9551437,a:"1049 Manhattan Ave",bl:"All-plant Ethiopian; the veggie combo is a feast."},
+ {n:"Ebreo Vintage",c:"vintage",h:"Williamsburg",b:"BK",lat:40.7146812,lng:-73.96237,a:"142 Grand St",bl:"Vintage suiting & styling — ask for Stan."},
+ {n:"Three Decker Diner",c:"food",h:"Greenpoint",b:"BK",lat:40.7252414,lng:-73.9518345,a:"695 Manhattan Ave",bl:"24-hour classic diner; burgers & cherry pie."},
+ {n:"Frog",c:"drinks",h:"Bed-Stuy",b:"BK",lat:40.6848704,lng:-73.9385509,a:"358 Marcus Garvey Blvd",bl:"Natural wine bar with a pool table & backyard."},
+ {n:"Other People's Clothes",c:"vintage",h:"Bushwick",b:"BK",lat:40.7051044,lng:-73.924537,a:"333 Troutman St",bl:"Loud, big vintage floor — designer mixed in."},
+ {n:"Zapatería Mexico NY",c:"shops",h:"Sunset Park",b:"BK",lat:40.6476794,lng:-74.0074474,a:"4505 5th Ave",bl:"Leather boots & Western wear, Brooklyn branch."},
+ {n:"Al-Aqsa Bakery",c:"food",h:"Bay Ridge",b:"BK",lat:40.6329976,lng:-74.0210444,a:"6917 5th Ave",bl:"Palestinian bakery — shawarma, falafel, fresh pita."},
+ {n:"2nd Street — Williamsburg",c:"vintage",h:"Williamsburg",b:"BK",lat:40.717567,lng:-73.964476,a:"187 Kent Ave",bl:"Japanese secondhand chain."},
+ {n:"2nd Street — Cobble Hill",c:"vintage",h:"Cobble Hill",b:"BK",lat:40.685174,lng:-73.991773,a:"192 Smith St",bl:"Japanese secondhand chain on Smith St."},
+ {n:"2nd Street — Dumbo",c:"vintage",h:"Dumbo",b:"BK",lat:40.702366,lng:-73.990033,a:"70 Front St",bl:"Japanese secondhand chain."},
+ // BRONX
+ {n:"Casa Amadeo",c:"drinks",h:"Longwood",b:"BX",lat:40.8192996,lng:-73.9015765,a:"786 Prospect Ave",bl:"Oldest Latin record store in NYC — say hi to Mike."},
+ // WESTCHESTER
+ {n:"Walter's Hot Dogs",c:"food",h:"Mamaroneck",b:"WCH",lat:40.9430139,lng:-73.7469361,a:"937 Palmer Ave",bl:"Historic pagoda stand — butter-toasted split dogs (day trip)."}
+];
+
+/* ============ STATE ============ */
+const state = { tab:"map", cats:new Set(), boro:"ALL", q:"", onlyFavs:false, favs:new Set(["Zaidi's NYC","Casa Amadeo","Ebreo Vintage","Church Street Surplus","Greenwich Locksmiths"]) };
+const gmap = p => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.n+' '+p.a+' New York')}`;
+
+/* ============ BUILD FILTER UI ============ */
+const catsEl=document.getElementById('cats');
+Object.entries(CAT).forEach(([k,v])=>{
+  const b=document.createElement('button');
+  b.className='chip'; b.style.setProperty('--c',v.c);
+  b.innerHTML=`<span class="dot"></span>${v.e} ${v.label}`;
+  b.onclick=()=>{ b.classList.toggle('on'); state.cats.has(k)?state.cats.delete(k):state.cats.add(k); render(); };
+  catsEl.appendChild(b);
+});
+const borosEl=document.getElementById('boros');
+const favBtn=document.createElement('button');
+favBtn.className='boro favbtn'; favBtn.textContent='★ Favs';
+favBtn.onclick=()=>{ state.onlyFavs=!state.onlyFavs; favBtn.classList.toggle('on',state.onlyFavs); render(); };
+borosEl.appendChild(favBtn);
+[["ALL","All boroughs"],...Object.entries(BOROS)].forEach(([k,v])=>{
+  const b=document.createElement('button');
+  b.className='boro'+(k==="ALL"?" on":""); b.textContent=v; b.dataset.b=k;
+  b.onclick=()=>{ state.boro=k; [...borosEl.children].forEach(c=>c.classList.toggle('on',c.dataset.b===k)); render(); };
+  borosEl.appendChild(b);
+});
+document.getElementById('q').addEventListener('input',e=>{state.q=e.target.value.trim().toLowerCase();render();});
+
+/* ============ TABS ============ */
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  state.tab=t.dataset.tab;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.dataset.view===state.tab));
+  document.getElementById('filters').style.display = state.tab==='day' ? 'none':'block';
+  if(state.tab==='map'){ setTimeout(()=>{ if(map){map.invalidateSize(); fitMap();} },80); }
+});
+
+/* ============ FILTER LOGIC ============ */
+function match(p){
+  if(state.onlyFavs && !state.favs.has(p.n)) return false;
+  if(state.cats.size && !state.cats.has(p.c)) return false;
+  if(state.boro!=="ALL" && p.b!==state.boro) return false;
+  if(state.q){ const hay=(p.n+' '+p.h+' '+CAT[p.c].label+' '+p.bl).toLowerCase(); if(!hay.includes(state.q)) return false; }
+  return true;
+}
+
+/* ============ MAP ============ */
+let map=null, markers=[];
+try{
+  map=L.map('map',{zoomControl:true,attributionControl:true}).setView([40.72,-73.96],11.4);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+    attribution:'&copy; OpenStreetMap &copy; CARTO', subdomains:'abcd', maxZoom:19
+  }).addTo(map);
+}catch(e){
+  const el=document.getElementById('map');
+  if(el) el.innerHTML='<div style="padding:24px;color:#F5E9CC;font-family:DM Sans,sans-serif;line-height:1.4">The map needs an internet connection to load. The <b>List</b> and <b>Day Trip</b> tabs still work — tap them above.</div>';
+}
+function drawMarkers(){
+  if(!map) return;
+  markers.forEach(m=>map.removeLayer(m)); markers=[];
+  P.filter(match).forEach(p=>{
+    const icon=L.divIcon({className:'',html:`<div class="pin ${state.favs.has(p.n)?'fav':''}" style="background:${CAT[p.c].c}"></div>`,iconSize:[20,20],iconAnchor:[10,18],popupAnchor:[0,-16]});
+    const m=L.marker([p.lat,p.lng],{icon}).addTo(map);
+    m.bindPopup(`<div class="pop" style="--c:${CAT[p.c].c}"><div class="pc">${CAT[p.c].e} ${CAT[p.c].label}</div><h3>${p.n}</h3><div class="ph">${p.h} · ${BOROS[p.b]}</div><p>${p.bl}</p><a href="${gmap(p)}" target="_blank" rel="noopener">Open in Maps ↗</a></div>`);
+    markers.push(m);
+  });
+}
+function fitMap(){
+  if(!map) return;
+  const pts=P.filter(match).map(p=>[p.lat,p.lng]);
+  if(pts.length){ try{ map.fitBounds(pts,{padding:[40,40],maxZoom:14}); }catch(e){} }
+}
+// legend
+const legEl=document.getElementById('legend');
+legEl.innerHTML='<b>Categories</b>'+Object.values(CAT).map(v=>`<div class="lg"><i style="background:${v.c}"></i>${v.label}</div>`).join('');
+
+/* ============ LIST ============ */
+const cardsEl=document.getElementById('cards');
+function drawList(){
+  const list=P.filter(match);
+  if(!list.length){ cardsEl.innerHTML=`<div class="empty"><b>Nada por aquí</b>Try clearing a filter or search.</div>`; return; }
+  cardsEl.innerHTML=list.map(p=>{
+    const v=CAT[p.c];
+    return `<article class="card" style="--c:${v.c}">
+      <div class="catline">${v.e} ${v.label}</div>
+      <h3>${p.n}</h3>
+      <div class="hood">${p.h} · ${BOROS[p.b]}</div>
+      <p>${p.bl}</p>
+      <div class="foot">
+        <a class="btn" href="${gmap(p)}" target="_blank" rel="noopener">Directions ↗</a>
+        <button class="fav ${state.favs.has(p.n)?'on':''}" data-n="${p.n.replace(/"/g,'&quot;')}" aria-label="Save">${state.favs.has(p.n)?'♥':'♡'}</button>
+      </div></article>`;
+  }).join('');
+  cardsEl.querySelectorAll('.fav').forEach(f=>f.onclick=()=>{
+    const n=f.dataset.n; state.favs.has(n)?state.favs.delete(n):state.favs.add(n); drawList(); drawMarkers();
+  });
+}
+
+/* ============ COUNT ============ */
+function updateCount(){ const n=P.filter(match).length; document.getElementById('count').textContent=`${n} spot${n!==1?'s':''} shown · ${P.length} total`; }
+
+function render(){ drawMarkers(); drawList(); updateCount(); if(state.tab==='map') fitMap(); }
+
+/* ============ DAY TRIP GENERATOR ============ */
+const dayState={vibe:"mix",area:"ALL"};
+function haversine(a,b){const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLng=(b.lng-a.lng)*Math.PI/180,
+  s=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+  return 2*R*Math.asin(Math.sqrt(s));}
+const VIBES={
+  mix:{label:"Mixed Bag",cats:null},
+  vintage:{label:"Vintage Crawl",cats:["vintage","market"]},
+  food:{label:"Eat Your Way",cats:["food","cafe"]},
+  art:{label:"Art & Coffee",cats:["art","cafe"]},
+  night:{label:"Bars & Music",cats:["drinks","food"]}
+};
+function buildDayUI(){
+  const dp=document.getElementById('dayPanel');
+  dp.innerHTML=`
+   <div class="daycard">
+     <h2>✦ Build my day</h2>
+     <p class="help">Pick a vibe and an area. We'll chain nearby spots into one walkable loop with an optimized route.</p>
+     <label class="fld">Vibe</label>
+     <div class="pillrow" id="vibes">${Object.entries(VIBES).map(([k,v])=>`<button class="pill ${k==='mix'?'on':''}" data-v="${k}">${v.label}</button>`).join('')}</div>
+     <label class="fld">Area</label>
+     <div class="pillrow" id="areas">${[["ALL","Anywhere"],...Object.entries(BOROS)].map(([k,v])=>`<button class="pill ${k==='ALL'?'on':''}" data-a="${k}">${v}</button>`).join('')}</div>
+     <button class="go" id="go">Plan my day →</button>
+   </div>
+   <div id="result"></div>`;
+  dp.querySelectorAll('#vibes .pill').forEach(b=>b.onclick=()=>{dayState.vibe=b.dataset.v;dp.querySelectorAll('#vibes .pill').forEach(x=>x.classList.toggle('on',x===b));});
+  dp.querySelectorAll('#areas .pill').forEach(b=>b.onclick=()=>{dayState.area=b.dataset.a;dp.querySelectorAll('#areas .pill').forEach(x=>x.classList.toggle('on',x===b));});
+  dp.querySelector('#go').onclick=planDay;
+}
+function planDay(){
+  let pool=P.filter(p=>{
+    if(dayState.area!=="ALL" && p.b!==dayState.area) return false;
+    const cats=VIBES[dayState.vibe].cats;
+    if(cats && !cats.includes(p.c)) return false;
+    return true;
+  });
+  const res=document.getElementById('result');
+  if(pool.length<2){ res.innerHTML=`<div class="daycard"><p class="help">Not enough spots for that combo — try “Anywhere” or a different vibe.</p></div>`; return; }
+  // seed: random start, then greedy nearest-neighbour, cap 6
+  const start=pool[Math.floor(Math.random()*pool.length)];
+  const route=[start]; let remaining=pool.filter(p=>p!==start);
+  while(route.length<6 && remaining.length){
+    const last=route[route.length-1];
+    remaining.sort((a,b)=>haversine(last,a)-haversine(last,b));
+    // keep the day tight: stop if next jump is huge and we already have 3+
+    if(route.length>=3 && haversine(last,remaining[0])>4.5) break;
+    route.push(remaining.shift());
+  }
+  // For "mix" try to guarantee at least one food + one coffee if available
+  let dist=0; for(let i=1;i<route.length;i++) dist+=haversine(route[i-1],route[i]);
+  const wp=route.map(p=>`${p.lat},${p.lng}`);
+  const routeUrl=`https://www.google.com/maps/dir/?api=1&origin=${wp[0]}&destination=${wp[wp.length-1]}&travelmode=walking${wp.length>2?`&waypoints=${wp.slice(1,-1).join('|')}`:''}`;
+  const title=`${VIBES[dayState.vibe].label} · ${dayState.area==='ALL'?'NYC':BOROS[dayState.area]}`;
+  res.innerHTML=`<div class="daycard">
+    <h2>${title}</h2>
+    <p class="help">${route.length} stops · about ${dist.toFixed(1)} km on foot · starts in ${route[0].h}.</p>
+    ${route.map((p,i)=>{const v=CAT[p.c];return `<div class="stop"><div class="num" style="--c:${v.c}">${i+1}</div>
+      <div class="info"><h4>${p.n}</h4><div class="meta">${v.e} ${v.label} · ${p.h}</div><p>${p.bl}</p></div></div>`;}).join('')}
+    <div class="routebtns">
+      <a class="btn" href="${routeUrl}" target="_blank" rel="noopener">Open route in Google Maps ↗</a>
+      <button class="btn ghost" id="reroll">↻ Reroll</button>
+    </div>
+  </div>`;
+  res.querySelector('#reroll').onclick=planDay;
+  res.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ============ GO ============ */
+buildDayUI();
+render();
+function resizeMap(){ if(map){ map.invalidateSize(); fitMap(); } }
+[120,400,900,1600].forEach(t=>setTimeout(resizeMap,t));
+window.addEventListener('load',resizeMap);
+window.addEventListener('resize',resizeMap);
+window.addEventListener('orientationchange',()=>setTimeout(resizeMap,250));
+</script>
+</body>
+</html>
