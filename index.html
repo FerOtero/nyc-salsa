@@ -147,6 +147,13 @@
   .stop .info .meta{font-size:11.5px;color:var(--paper2);font-weight:600}
   .stop .info p{font-size:12.5px;margin:5px 0 0;color:var(--paper)}
   .routebtns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .inp{width:100%;font-family:inherit;font-size:15px;color:#12245E;background:var(--paper);border:2px solid #12245E;border-radius:10px;padding:11px 12px;margin-top:2px}
+  .inp::placeholder{color:#8a7a5f}
+  select.inp{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#12245E 50%),linear-gradient(135deg,#12245E 50%,transparent 50%);background-position:calc(100% - 16px) 18px,calc(100% - 11px) 18px;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+  .opt{font-weight:400;color:var(--paper2);text-transform:none;letter-spacing:0;font-size:10px}
+  .fmsg{font-size:12.5px;margin-top:10px;color:var(--gold);min-height:16px;font-weight:600}
+  .del{margin-left:auto;background:none;border:2px solid var(--line);color:var(--paper);border-radius:8px;width:30px;height:30px;font-size:14px;cursor:pointer;flex:0 0 auto}
+  .del:active{background:var(--red);border-color:var(--red)}
 
   /* ---------- LEAFLET MARKERS / POPUP ---------- */
   .pin{width:20px;height:20px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
@@ -164,7 +171,37 @@
   .legend b{font-family:'Chango';font-size:9px;letter-spacing:.5px;display:block;margin-bottom:5px;color:var(--gold)}
   .legend .lg{display:flex;align-items:center;gap:6px;margin:2px 0;font-weight:600}
   .legend .lg i{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .locbtn{position:absolute;right:12px;top:12px;z-index:600;font-family:'Chango';font-size:12px;
+    background:var(--turq);color:#08201f;border:2px solid #0A2560;border-radius:40px;padding:9px 14px;cursor:pointer;box-shadow:2px 2px 0 rgba(0,0,0,.4)}
+  .locbtn:active{transform:translate(1px,1px)}
+  .medot{width:16px;height:16px;border-radius:50%;background:#17C3E6;border:3px solid #fff;box-shadow:0 0 0 2px #17C3E6;animation:mepulse 2s infinite}
+  @keyframes mepulse{0%{box-shadow:0 0 0 2px #17C3E6,0 0 0 0 rgba(23,195,230,.55)}70%{box-shadow:0 0 0 2px #17C3E6,0 0 0 15px rgba(23,195,230,0)}100%{box-shadow:0 0 0 2px #17C3E6,0 0 0 0 rgba(23,195,230,0)}}
+  .credit{display:inline-block;margin-top:9px;font-size:11px;color:var(--gold);text-decoration:none;font-weight:700;position:relative;border-bottom:1px dotted var(--gold)}
+  .credit:active{opacity:.7}
 
+  @media (max-width:600px){
+    header{padding-top:calc(env(safe-area-inset-top) + 8px);padding-bottom:8px}
+    h1{font-size:clamp(30px,10.5vw,46px);line-height:.9}
+    h1 span{font-size:11px;letter-spacing:2px;margin-top:5px}
+    .tagline{display:none}
+    .kicker{font-size:9px}
+    .toolbar{margin-top:8px}
+    .search{padding:7px 12px}
+    .credit{margin-top:8px;font-size:11px}
+    .tabs{padding:7px 12px 0}
+    .tab{padding:9px 4px;font-size:10px}
+    .filters{padding:7px 0 6px}
+    .chiprow{padding:0 12px 2px}
+    .hoodrow{padding:6px 12px 0}
+    .count{padding:4px 12px 0}
+    .chip{padding:6px 10px;font-size:12px}
+    .leaflet-control-zoom a{width:34px!important;height:34px!important;line-height:34px!important;font-size:20px!important}
+    .locbtn{top:10px;right:10px}
+    .legend{left:8px;bottom:10px;font-size:10px;padding:8px 9px}
+  }
+  @media (max-width:600px) and (max-height:720px){
+    .legend{display:none}
+  }
   @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
   .note{font-size:11px;color:var(--paper2);text-align:center;padding:0 16px 10px;opacity:.8}
 </style>
@@ -181,12 +218,14 @@
         <input id="q" type="search" placeholder="Search a spot…" autocomplete="off" aria-label="Search places">
       </div>
     </div>
+    <a class="credit" href="https://www.trafficcamphotobooth.com/map.html?onDesktop=yes" target="_blank" rel="noopener">📸 Also try: Traffic Cam Photobooth ↗</a>
   </header>
 
   <div class="tabs">
     <button class="tab on" data-tab="map">🗺 Map</button>
     <button class="tab" data-tab="list">☰ List</button>
     <button class="tab" data-tab="day">✦ Day Trip</button>
+    <button class="tab" data-tab="add">➕ Add</button>
   </div>
 
   <div class="filters" id="filters">
@@ -198,9 +237,11 @@
   <div class="panel">
     <section class="view on" data-view="map"><div id="map"></div>
       <div class="legend" id="legend"></div>
+      <button class="locbtn" id="locate" aria-label="Show my location">◎ Me</button>
     </section>
     <section class="view" data-view="list"><div class="listwrap"><div class="cards" id="cards"></div></div></section>
     <section class="view" data-view="day"><div class="day" id="dayPanel"></div></section>
+    <section class="view" data-view="add"><div class="day" id="addPanel"></div></section>
   </div>
 </div>
 
@@ -308,6 +349,16 @@ const P = [
  {n:"Walter's Hot Dogs",c:"food",h:"Mamaroneck",b:"WCH",lat:40.9430139,lng:-73.7469361,a:"937 Palmer Ave",bl:"Historic pagoda stand — butter-toasted split dogs (day trip)."}
 ];
 
+/* ---- Your own spots (saved in this browser; persists when opened from your hosted link / Safari) ---- */
+const LS_KEY='nyc_user_spots_v1';
+let userP=[];
+try{ const raw=localStorage.getItem(LS_KEY); if(raw) userP=JSON.parse(raw)||[]; }catch(e){ userP=[]; }
+let DATA=[];
+function rebuild(){ DATA=P.concat(userP); }
+function saveUser(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(userP)); }catch(e){} }
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+rebuild();
+
 /* ============ STATE ============ */
 const state = { tab:"map", cats:new Set(), boro:"ALL", q:"", onlyFavs:false, favs:new Set(["Zaidi's NYC","Casa Amadeo","Ebreo Vintage","Church Street Surplus","Greenwich Locksmiths"]) };
 const gmap = p => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.n+' '+p.a+' New York')}`;
@@ -339,7 +390,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   state.tab=t.dataset.tab;
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.dataset.view===state.tab));
-  document.getElementById('filters').style.display = state.tab==='day' ? 'none':'block';
+  document.getElementById('filters').style.display = (state.tab==='day'||state.tab==='add') ? 'none':'block';
   if(state.tab==='map'){ setTimeout(()=>{ if(map){map.invalidateSize(); fitMap();} },80); }
 });
 
@@ -355,7 +406,7 @@ function match(p){
 /* ============ MAP ============ */
 let map=null, markers=[];
 try{
-  map=L.map('map',{zoomControl:true,attributionControl:true}).setView([40.72,-73.96],11.4);
+  map=L.map('map',{zoomControl:true,attributionControl:true}).setView([40.725,-73.985],12.4);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
     attribution:'&copy; OpenStreetMap &copy; CARTO', subdomains:'abcd', maxZoom:19
   }).addTo(map);
@@ -366,26 +417,48 @@ try{
 function drawMarkers(){
   if(!map) return;
   markers.forEach(m=>map.removeLayer(m)); markers=[];
-  P.filter(match).forEach(p=>{
+  DATA.filter(match).forEach(p=>{
     const icon=L.divIcon({className:'',html:`<div class="pin ${state.favs.has(p.n)?'fav':''}" style="background:${CAT[p.c].c}"></div>`,iconSize:[20,20],iconAnchor:[10,18],popupAnchor:[0,-16]});
     const m=L.marker([p.lat,p.lng],{icon}).addTo(map);
     m.bindPopup(`<div class="pop" style="--c:${CAT[p.c].c}"><div class="pc">${CAT[p.c].e} ${CAT[p.c].label}</div><h3>${p.n}</h3><div class="ph">${p.h} · ${BOROS[p.b]}</div><p>${p.bl}</p><a href="${gmap(p)}" target="_blank" rel="noopener">Open in Maps ↗</a></div>`);
     markers.push(m);
   });
 }
+function hasFilter(){ return state.cats.size>0 || state.boro!=='ALL' || state.onlyFavs || !!state.q; }
 function fitMap(){
-  if(!map) return;
-  const pts=P.filter(match).map(p=>[p.lat,p.lng]);
-  if(pts.length){ try{ map.fitBounds(pts,{padding:[40,40],maxZoom:14}); }catch(e){} }
+  if(!map || !hasFilter()) return;
+  const pts=DATA.filter(match).map(p=>[p.lat,p.lng]);
+  if(pts.length){ try{ map.fitBounds(pts,{padding:[40,40],maxZoom:15}); }catch(e){} }
 }
 // legend
 const legEl=document.getElementById('legend');
 legEl.innerHTML='<b>Categories</b>'+Object.values(CAT).map(v=>`<div class="lg"><i style="background:${v.c}"></i>${v.label}</div>`).join('');
 
+// ---- Show me on the map ----
+let meMarker=null, meCircle=null;
+const locBtn=document.getElementById('locate');
+if(locBtn) locBtn.onclick=()=>{
+  if(!map){ return; }
+  if(!navigator.geolocation){ alert('Location is not available on this device.'); return; }
+  locBtn.textContent='◎ …';
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const la=pos.coords.latitude, lo=pos.coords.longitude, acc=pos.coords.accuracy||60;
+    if(meMarker) map.removeLayer(meMarker);
+    if(meCircle) map.removeLayer(meCircle);
+    meMarker=L.marker([la,lo],{zIndexOffset:1000,icon:L.divIcon({className:'',html:'<div class="medot"></div>',iconSize:[16,16],iconAnchor:[8,8]})}).addTo(map);
+    meCircle=L.circle([la,lo],{radius:acc,color:'#17C3E6',fillColor:'#17C3E6',fillOpacity:.12,weight:1}).addTo(map);
+    map.setView([la,lo], 15);
+    locBtn.textContent='◎ Me';
+  }, err=>{
+    locBtn.textContent='◎ Me';
+    alert('Could not get your location. Make sure location access is allowed for this site in your browser settings.');
+  }, {enableHighAccuracy:true, timeout:9000, maximumAge:30000});
+};
+
 /* ============ LIST ============ */
 const cardsEl=document.getElementById('cards');
 function drawList(){
-  const list=P.filter(match);
+  const list=DATA.filter(match);
   if(!list.length){ cardsEl.innerHTML=`<div class="empty"><b>Nada por aquí</b>Try clearing a filter or search.</div>`; return; }
   cardsEl.innerHTML=list.map(p=>{
     const v=CAT[p.c];
@@ -405,7 +478,7 @@ function drawList(){
 }
 
 /* ============ COUNT ============ */
-function updateCount(){ const n=P.filter(match).length; document.getElementById('count').textContent=`${n} spot${n!==1?'s':''} shown · ${P.length} total`; }
+function updateCount(){ const n=DATA.filter(match).length; document.getElementById('count').textContent=`${n} spot${n!==1?'s':''} shown · ${DATA.length} total`; }
 
 function render(){ drawMarkers(); drawList(); updateCount(); if(state.tab==='map') fitMap(); }
 
@@ -439,7 +512,7 @@ function buildDayUI(){
   dp.querySelector('#go').onclick=planDay;
 }
 function planDay(){
-  let pool=P.filter(p=>{
+  let pool=DATA.filter(p=>{
     if(dayState.area!=="ALL" && p.b!==dayState.area) return false;
     const cats=VIBES[dayState.vibe].cats;
     if(cats && !cats.includes(p.c)) return false;
@@ -477,7 +550,82 @@ function planDay(){
 }
 
 /* ============ GO ============ */
+/* ============ ADD A SPOT ============ */
+function buildAddUI(){
+  const ap=document.getElementById('addPanel');
+  const catOpts=Object.entries(CAT).map(([k,v])=>`<option value="${k}">${v.e} ${v.label}</option>`).join('');
+  const boroOpts=Object.entries(BOROS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
+  ap.innerHTML=`
+    <div class="daycard">
+      <h2>➕ Add a spot</h2>
+      <p class="help">Save your own places with a category. They stay on this device and mix into the map, list & day trips.</p>
+      <label class="fld">Name</label><input class="inp" id="f_name" placeholder="e.g. New York Old Iron">
+      <label class="fld">Category</label><select class="inp" id="f_cat">${catOpts}</select>
+      <label class="fld">Borough</label><select class="inp" id="f_boro">${boroOpts}</select>
+      <label class="fld">Neighborhood <span class="opt">optional</span></label><input class="inp" id="f_hood" placeholder="e.g. Bushwick">
+      <label class="fld">Address <span class="opt">we'll locate it on the map</span></label><input class="inp" id="f_addr" placeholder="123 Example St, Brooklyn">
+      <label class="fld">Or coordinates <span class="opt">lat, lng — optional, overrides address</span></label><input class="inp" id="f_ll" placeholder="40.7181, -73.9904">
+      <label class="fld">Note <span class="opt">optional</span></label><input class="inp" id="f_note" placeholder="Why it's worth it">
+      <button class="go" id="f_save">Save spot →</button>
+      <div id="f_msg" class="fmsg"></div>
+    </div>
+    <div class="daycard" id="yourspots"></div>`;
+  ap.querySelector('#f_save').onclick=addSpot;
+  renderYourSpots();
+}
+async function addSpot(){
+  const g=id=>document.getElementById(id), msg=g('f_msg');
+  const name=g('f_name').value.trim();
+  if(!name){ msg.textContent='Add a name first.'; return; }
+  const cat=g('f_cat').value, boro=g('f_boro').value;
+  const hood=g('f_hood').value.trim()||BOROS[boro];
+  const addr=g('f_addr').value.trim(), ll=g('f_ll').value.trim();
+  const note=g('f_note').value.trim()||'Added by you.';
+  let lat=null,lng=null;
+  if(ll){
+    const m=ll.split(',').map(s=>parseFloat(s.trim()));
+    if(m.length===2 && !isNaN(m[0]) && !isNaN(m[1])){ lat=m[0]; lng=m[1]; }
+    else { msg.textContent='Coordinates look off — use e.g. 40.72, -73.99'; return; }
+  }
+  if(lat===null){
+    if(!addr){ msg.textContent='Add an address, or paste coordinates.'; return; }
+    msg.textContent='Finding location…';
+    try{
+      const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(addr+', New York'));
+      const j=await r.json();
+      if(!j.length){ msg.textContent="Couldn't find that address — add the borough, or paste coordinates."; return; }
+      lat=parseFloat(j[0].lat); lng=parseFloat(j[0].lon);
+    }catch(e){ msg.textContent='Lookup failed (no connection?). Paste coordinates instead.'; return; }
+  }
+  userP.push({n:name,c:cat,h:hood,b:boro,lat,lng,a:(addr||`${lat.toFixed(4)}, ${lng.toFixed(4)}`),bl:note,user:true});
+  saveUser(); rebuild(); render();
+  ['f_name','f_hood','f_addr','f_ll','f_note'].forEach(id=>g(id).value='');
+  renderYourSpots();
+  msg.textContent='✓ Saved — find "'+name+'" in the List or on the Map.';
+}
+function renderYourSpots(){
+  const box=document.getElementById('yourspots'); if(!box) return;
+  if(!userP.length){ box.innerHTML='<h2>Your spots</h2><p class="help">Nothing added yet. What you add shows here with a delete button.</p>'; return; }
+  box.innerHTML='<h2>Your spots ('+userP.length+')</h2>'+userP.map((p,i)=>{
+    const v=CAT[p.c]||{c:'#999',e:'📍',label:'—'};
+    return `<div class="stop"><div class="num" style="--c:${v.c}">${v.e}</div>
+      <div class="info"><h4>${esc(p.n)}</h4><div class="meta">${v.label} · ${esc(p.h)}, ${BOROS[p.b]||''}</div></div>
+      <button class="del" data-i="${i}" aria-label="Delete ${esc(p.n)}">✕</button></div>`;
+  }).join('')+'<div class="routebtns"><button class="btn ghost" id="expspots">⬇︎ Export my spots (JSON)</button></div>';
+  box.querySelectorAll('.del').forEach(b=>b.onclick=()=>{ userP.splice(+b.dataset.i,1); saveUser(); rebuild(); render(); renderYourSpots(); });
+  const e=box.querySelector('#expspots'); if(e) e.onclick=exportSpots;
+}
+function exportSpots(){
+  try{
+    const blob=new Blob([JSON.stringify(userP,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob), a=document.createElement('a');
+    a.href=url; a.download='my-nyc-spots.json'; document.body.appendChild(a); a.click();
+    a.remove(); setTimeout(()=>URL.revokeObjectURL(url),2000);
+  }catch(e){}
+}
+
 buildDayUI();
+buildAddUI();
 render();
 function resizeMap(){ if(map){ map.invalidateSize(); fitMap(); } }
 [120,400,900,1600].forEach(t=>setTimeout(resizeMap,t));
