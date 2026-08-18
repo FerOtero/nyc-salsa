@@ -139,6 +139,8 @@
     padding:15px;border-radius:14px;border:3px solid #0A2560;color:#0A2560;
     background:linear-gradient(92deg,var(--red),var(--tang),var(--gold));cursor:pointer;box-shadow:4px 4px 0 rgba(0,0,0,.4)}
   .go:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.4)}
+  .go.alt{margin-top:9px;background:linear-gradient(92deg,var(--turq),#5BD9F5)}
+  .go[disabled]{opacity:.6;cursor:default}
   .stop{display:flex;gap:12px;padding:12px 0;border-bottom:1px dashed var(--line)}
   .stop:last-child{border-bottom:0}
   .num{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--c,var(--pink));color:#0A2560;
@@ -537,7 +539,7 @@ function updateCount(){ const n=DATA.filter(match).length; document.getElementBy
 function render(){ drawMarkers(); drawList(); updateCount(); if(state.tab==='map') fitMap(); }
 
 /* ============ DAY TRIP GENERATOR ============ */
-const dayState={vibe:"mix",area:"ALL",picks:[]};
+const dayState={vibe:"mix",area:"ALL",picks:[],me:null};
 function haversine(a,b){const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLng=(b.lng-a.lng)*Math.PI/180,
   s=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;
   return 2*R*Math.asin(Math.sqrt(s));}
@@ -560,6 +562,8 @@ function buildDayUI(){
      <label class="fld">Area</label>
      <div class="pillrow" id="areas">${[["ALL","Anywhere"],...Object.entries(BOROS)].map(([k,v])=>`<button class="pill ${k==='ALL'?'on':''}" data-a="${k}">${v}</button>`).join('')}</div>
      <button class="go" id="go">Plan my day →</button>
+     <button class="go alt" id="gome">◎ Plan around my location</button>
+     <div id="gomsg" class="fmsg"></div>
    </div>
    <div id="result"></div>
    <div class="daycard">
@@ -572,9 +576,25 @@ function buildDayUI(){
    </div>`;
   dp.querySelectorAll('#vibes .pill').forEach(b=>b.onclick=()=>{dayState.vibe=b.dataset.v;dp.querySelectorAll('#vibes .pill').forEach(x=>x.classList.toggle('on',x===b));});
   dp.querySelectorAll('#areas .pill').forEach(b=>b.onclick=()=>{dayState.area=b.dataset.a;dp.querySelectorAll('#areas .pill').forEach(x=>x.classList.toggle('on',x===b));});
-  dp.querySelector('#go').onclick=planDay;
+  dp.querySelector('#go').onclick=()=>planDay(false);
+  dp.querySelector('#gome').onclick=planFromMe;
   dp.querySelector('#pickq').addEventListener('input',e=>drawPickResults(e.target.value.trim().toLowerCase()));
   renderMyDay();
+}
+
+/* ---- Plan around where you are right now ---- */
+function planFromMe(){
+  const btn=document.getElementById('gome'), msg=document.getElementById('gomsg');
+  if(!navigator.geolocation){ msg.textContent='Location is not available on this device.'; return; }
+  btn.disabled=true; btn.textContent='◎ Finding you…'; msg.textContent='';
+  navigator.geolocation.getCurrentPosition(pos=>{
+    dayState.me={lat:pos.coords.latitude,lng:pos.coords.longitude};
+    btn.disabled=false; btn.textContent='◎ Plan around my location';
+    planDay(true);
+  },err=>{
+    btn.disabled=false; btn.textContent='◎ Plan around my location';
+    msg.textContent='Could not get your location — allow location access for this site, or use “Plan my day”.';
+  },{enableHighAccuracy:true,timeout:9000,maximumAge:60000});
 }
 
 /* ---- My day: search to add, ✕ to remove ---- */
@@ -615,17 +635,23 @@ function renderMyDay(){
   box.querySelectorAll('.del').forEach(b=>b.onclick=()=>{ picks.splice(+b.dataset.i,1); renderMyDay(); });
   const c=box.querySelector('#clearday'); if(c) c.onclick=()=>{ dayState.picks=[]; renderMyDay(); };
 }
-function planDay(){
+function planDay(useMe){
+  const me = useMe ? dayState.me : null;
   let pool=DATA.filter(p=>{
-    if(dayState.area!=="ALL" && p.b!==dayState.area) return false;
+    // when planning from your location, proximity replaces the borough filter
+    if(!me && dayState.area!=="ALL" && p.b!==dayState.area) return false;
     const cats=VIBES[dayState.vibe].cats;
     if(cats && !cats.includes(p.c)) return false;
     return true;
   });
   const res=document.getElementById('result');
   if(pool.length<2){ res.innerHTML=`<div class="daycard"><p class="help">Not enough spots for that combo — try “Anywhere” or a different vibe.</p></div>`; return; }
-  // seed: random start, then greedy nearest-neighbour, cap 6
-  const start=pool[Math.floor(Math.random()*pool.length)];
+  // seed: nearest spot to you, or a random one; then greedy nearest-neighbour, cap 6
+  // near you: pick at random among the closest few, so Reroll still varies
+  const near = me ? [...pool].sort((a,b)=>haversine(me,a)-haversine(me,b)).slice(0,3) : null;
+  const start = me
+    ? near[Math.floor(Math.random()*near.length)]
+    : pool[Math.floor(Math.random()*pool.length)];
   const route=[start]; let remaining=pool.filter(p=>p!==start);
   while(route.length<6 && remaining.length){
     const last=route[route.length-1];
@@ -636,12 +662,18 @@ function planDay(){
   }
   // For "mix" try to guarantee at least one food + one coffee if available
   let dist=0; for(let i=1;i<route.length;i++) dist+=haversine(route[i-1],route[i]);
-  const wp=route.map(p=>`${p.lat},${p.lng}`);
-  const routeUrl=`https://www.google.com/maps/dir/?api=1&origin=${wp[0]}&destination=${wp[wp.length-1]}&travelmode=walking${wp.length>2?`&waypoints=${wp.slice(1,-1).join('|')}`:''}`;
-  const title=`${VIBES[dayState.vibe].label} · ${dayState.area==='ALL'?'NYC':BOROS[dayState.area]}`;
+  const toFirst = me ? haversine(me,route[0]) : 0;
+  const stops=route.map(p=>`${p.lat},${p.lng}`);
+  const origin = me ? `${me.lat},${me.lng}` : stops[0];
+  const via = me ? stops.slice(0,-1) : stops.slice(1,-1);
+  const routeUrl=`https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${stops[stops.length-1]}&travelmode=walking${via.length?`&waypoints=${via.join('|')}`:''}`;
+  const title=`${VIBES[dayState.vibe].label} · ${me?'Near you':(dayState.area==='ALL'?'NYC':BOROS[dayState.area])}`;
+  const opener = me
+    ? `first stop is ${toFirst<1?`${Math.round(toFirst*1000)} m`:`${toFirst.toFixed(1)} km`} from you, in ${route[0].h}`
+    : `starts in ${route[0].h}`;
   res.innerHTML=`<div class="daycard">
     <h2>${title}</h2>
-    <p class="help">${route.length} stops · about ${dist.toFixed(1)} km on foot · starts in ${route[0].h}.</p>
+    <p class="help">${route.length} stops · about ${(dist+toFirst).toFixed(1)} km on foot · ${opener}.</p>
     ${route.map((p,i)=>{const v=CAT[p.c];return `<div class="stop"><div class="num" style="--c:${v.c}">${i+1}</div>
       <div class="info"><h4>${p.n}</h4><div class="meta">${v.e} ${v.label} · ${p.h}</div><p>${p.bl}</p></div></div>`;}).join('')}
     <div class="routebtns">
@@ -650,7 +682,7 @@ function planDay(){
       <button class="btn ghost" id="tomyday">✎ Send to My day</button>
     </div>
   </div>`;
-  res.querySelector('#reroll').onclick=planDay;
+  res.querySelector('#reroll').onclick=()=>planDay(!!me);
   res.querySelector('#tomyday').onclick=()=>{
     route.forEach(p=>{ if(!dayState.picks.some(x=>x.n===p.n)) dayState.picks.push(p); });
     renderMyDay();
