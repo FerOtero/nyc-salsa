@@ -33,11 +33,11 @@
     background-attachment:fixed;
     overflow:hidden;
   }
-  .app{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:820px;margin:0 auto;position:relative}
+  .app{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:1180px;margin:0 auto;position:relative}
 
   /* ---------- HEADER ---------- */
   header{
-    padding:calc(env(safe-area-inset-top) + 12px) 16px 10px;
+    padding:calc(env(safe-area-inset-top) + 8px) 16px 7px;
     background:
       repeating-linear-gradient(45deg, rgba(255,210,30,.07) 0 12px, transparent 12px 24px),
       linear-gradient(180deg,#0A2560,#0E2E7A);
@@ -55,51 +55,51 @@
       var(--tang) 300deg 315deg, transparent 315deg 330deg, var(--turq) 330deg 345deg, transparent 345deg 360deg);
     opacity:.32;border-radius:50%;filter:blur(.3px);pointer-events:none;
   }
-  .kicker{font-family:'Chango';font-size:11px;letter-spacing:2px;color:var(--turq);text-transform:uppercase;position:relative}
+  .kicker{font-family:'Chango';font-size:9px;letter-spacing:2px;color:var(--turq);text-transform:uppercase;position:relative}
   h1{
-    font-family:'Chango',system-ui;font-weight:400;margin:4px 0 0;line-height:.9;
-    font-size:clamp(42px,13.5vw,74px);letter-spacing:1px;position:relative;text-transform:uppercase;
+    font-family:'Chango',system-ui;font-weight:400;margin:3px 0 0;line-height:.9;
+    font-size:clamp(30px,9vw,48px);letter-spacing:1px;position:relative;text-transform:uppercase;
     color:var(--red);-webkit-text-stroke:2px var(--gold);paint-order:stroke fill;
     text-shadow:0 0 4px var(--tang), 0 0 12px rgba(255,176,30,.85), 0 0 22px rgba(255,210,30,.55), 4px 5px 0 #7A0D06;
   }
-  h1 span{display:block;font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;color:var(--paper);
-    -webkit-text-stroke:0;text-shadow:1px 1px 0 rgba(0,0,0,.4);letter-spacing:4px;margin-top:8px;text-transform:uppercase}
-  .tagline{font-size:12.5px;color:var(--paper2);margin-top:6px;position:relative;font-weight:500}
+  h1 span{display:block;font-family:'DM Sans',sans-serif;font-weight:700;font-size:11px;color:var(--paper);
+    -webkit-text-stroke:0;text-shadow:1px 1px 0 rgba(0,0,0,.4);letter-spacing:3px;margin-top:5px;text-transform:uppercase}
+  .tagline{font-size:11.5px;color:var(--paper2);margin-top:4px;position:relative;font-weight:500}
 
   /* ---------- SEARCH + TABS ---------- */
-  .toolbar{display:flex;gap:8px;margin-top:12px;position:relative}
+  .toolbar{display:flex;gap:8px;margin-top:8px;position:relative}
   .search{flex:1;display:flex;align-items:center;gap:8px;background:rgba(251,233,208,.10);
-    border:2px solid var(--line);border-radius:40px;padding:9px 14px}
-  .search input{flex:1;background:none;border:0;color:var(--paper);font-size:15px;font-family:inherit;outline:none}
+    border:2px solid var(--line);border-radius:40px;padding:6px 12px}
+  .search input{flex:1;background:none;border:0;color:var(--paper);font-size:14px;font-family:inherit;outline:none}
   .search input::placeholder{color:rgba(251,233,208,.5)}
   .search svg{flex:0 0 auto}
 
-  .tabs{display:flex;gap:6px;padding:10px 16px 0;position:relative;flex:0 0 auto;background:linear-gradient(180deg,#0A2560,transparent)}
-  .tab{flex:1;font-family:'Chango';font-size:11px;letter-spacing:.5px;text-transform:uppercase;
-    padding:10px 6px;border-radius:12px 12px 0 0;border:2px solid var(--line);border-bottom:0;
+  .tabs{display:flex;gap:5px;padding:6px 16px 0;position:relative;flex:0 0 auto;background:linear-gradient(180deg,#0A2560,transparent)}
+  .tab{flex:1;font-family:'Chango';font-size:10px;letter-spacing:.5px;text-transform:uppercase;
+    padding:7px 5px;border-radius:10px 10px 0 0;border:2px solid var(--line);border-bottom:0;
     background:rgba(251,233,208,.06);color:var(--paper2);cursor:pointer;transition:.15s}
   .tab.on{background:var(--gold);color:#0A2560}
   .tab:focus-visible{outline:3px solid var(--turq);outline-offset:2px}
 
   /* ---------- FILTER CHIPS ---------- */
-  .filters{padding:10px 0 8px;flex:0 0 auto;border-top:2px solid var(--line);background:rgba(10,37,96,.6)}
-  .chiprow{display:flex;gap:7px;overflow-x:auto;padding:0 16px 2px;scrollbar-width:none}
+  .filters{padding:6px 0 5px;flex:0 0 auto;border-top:2px solid var(--line);background:rgba(10,37,96,.6)}
+  .chiprow{display:flex;gap:6px;overflow-x:auto;padding:0 16px 2px;scrollbar-width:none}
   .chiprow::-webkit-scrollbar{display:none}
-  .chip{flex:0 0 auto;font-size:12.5px;font-weight:700;padding:7px 12px;border-radius:40px;
+  .chip{flex:0 0 auto;font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:40px;
     border:2px solid var(--c,var(--paper2));color:var(--paper);background:transparent;cursor:pointer;
     white-space:nowrap;display:flex;align-items:center;gap:5px;transition:.12s}
-  .chip .dot{width:9px;height:9px;border-radius:50%;background:var(--c,#fff)}
+  .chip .dot{width:8px;height:8px;border-radius:50%;background:var(--c,#fff)}
   .chip.on{background:var(--c,var(--gold));color:#0A2560}
   .chip.on .dot{background:#0A2560}
   .chip:focus-visible{outline:3px solid var(--turq);outline-offset:2px}
-  .hoodrow{display:flex;gap:7px;overflow-x:auto;padding:8px 16px 0;scrollbar-width:none}
+  .hoodrow{display:flex;gap:6px;overflow-x:auto;padding:6px 16px 0;scrollbar-width:none}
   .hoodrow::-webkit-scrollbar{display:none}
-  .boro{flex:0 0 auto;font-family:'Chango';font-size:10px;letter-spacing:.5px;text-transform:uppercase;
-    padding:6px 11px;border-radius:8px;border:2px solid var(--line);background:transparent;color:var(--paper2);cursor:pointer}
+  .boro{flex:0 0 auto;font-family:'Chango';font-size:9px;letter-spacing:.5px;text-transform:uppercase;
+    padding:5px 9px;border-radius:8px;border:2px solid var(--line);background:transparent;color:var(--paper2);cursor:pointer}
   .boro.on{background:var(--pink);color:#0A2560;border-color:var(--pink)}
   .favbtn{border-color:var(--gold);color:var(--gold)}
   .favbtn.on{background:var(--gold);color:#0A2560;border-color:var(--gold)}
-  .count{font-size:11.5px;color:var(--paper2);padding:6px 16px 0;font-weight:500}
+  .count{font-size:10.5px;color:var(--paper2);padding:4px 16px 0;font-weight:500}
 
   /* ---------- PANELS ---------- */
   .panel{flex:1 1 auto;position:relative;overflow:hidden;min-height:0}
@@ -152,6 +152,15 @@
   select.inp{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#12245E 50%),linear-gradient(135deg,#12245E 50%,transparent 50%);background-position:calc(100% - 16px) 18px,calc(100% - 11px) 18px;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
   .opt{font-weight:400;color:var(--paper2);text-transform:none;letter-spacing:0;font-size:10px}
   .fmsg{font-size:12.5px;margin-top:10px;color:var(--gold);min-height:16px;font-weight:600}
+  .pickres{margin-top:8px;max-height:210px;overflow-y:auto;border:2px solid var(--line);border-radius:12px}
+  .pickres:empty{display:none}
+  .pr{display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:9px 11px;background:none;
+    border:0;border-bottom:1px dashed var(--line);color:var(--paper);font-family:inherit;font-size:13px;cursor:pointer}
+  .pr:last-child{border-bottom:0}
+  .pr:hover,.pr:focus-visible{background:rgba(251,233,208,.09);outline:none}
+  .pr i{width:9px;height:9px;border-radius:50%;background:var(--c,#fff);flex:0 0 auto}
+  .pr .prm{font-size:11px;color:var(--paper2);font-weight:600}
+  .pr[disabled]{opacity:.45;cursor:default}
   .del{margin-left:auto;background:none;border:2px solid var(--line);color:var(--paper);border-radius:8px;width:30px;height:30px;font-size:14px;cursor:pointer;flex:0 0 auto}
   .del:active{background:var(--red);border-color:var(--red)}
 
@@ -167,10 +176,13 @@
   .pop p{font-size:12.5px;margin:6px 0 8px;color:#3a2b1c;max-width:210px}
   .pop a{font-family:'Chango';font-size:10px;text-transform:uppercase;text-decoration:none;color:#12245E;background:var(--gold);border:2px solid #12245E;padding:6px 10px;border-radius:8px;display:inline-block}
   .leaflet-control-attribution{font-size:9px}
-  .legend{position:absolute;left:10px;bottom:14px;background:rgba(10,37,96,.9);border:2px solid var(--line);border-radius:12px;padding:9px 11px;font-size:10.5px;z-index:500;max-width:150px}
-  .legend b{font-family:'Chango';font-size:9px;letter-spacing:.5px;display:block;margin-bottom:5px;color:var(--gold)}
-  .legend .lg{display:flex;align-items:center;gap:6px;margin:2px 0;font-weight:600}
-  .legend .lg i{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .legend{position:absolute;left:10px;bottom:14px;background:rgba(10,37,96,.9);border:2px solid var(--line);border-radius:12px;padding:7px 9px;font-size:9.5px;z-index:500;max-width:140px;cursor:pointer}
+  .legend b{font-family:'Chango';font-size:8.5px;letter-spacing:.5px;display:block;color:var(--gold)}
+  .legend .lg{display:flex;align-items:center;gap:5px;margin:2px 0;font-weight:600}
+  .legend .lg i{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .legend.min .lg{display:none}
+  .legend.min b{margin:0}
+  .leaflet-control-zoom a{width:36px!important;height:36px!important;line-height:36px!important;font-size:21px!important}
   .locbtn{position:absolute;right:12px;top:12px;z-index:600;font-family:'Chango';font-size:12px;
     background:var(--turq);color:#08201f;border:2px solid #0A2560;border-radius:40px;padding:9px 14px;cursor:pointer;box-shadow:2px 2px 0 rgba(0,0,0,.4)}
   .locbtn:active{transform:translate(1px,1px)}
@@ -180,21 +192,21 @@
   .credit:active{opacity:.7}
 
   @media (max-width:600px){
-    header{padding-top:calc(env(safe-area-inset-top) + 8px);padding-bottom:8px}
-    h1{font-size:clamp(30px,10.5vw,46px);line-height:.9}
-    h1 span{font-size:11px;letter-spacing:2px;margin-top:5px}
+    header{padding-top:calc(env(safe-area-inset-top) + 6px);padding-bottom:6px}
+    h1{font-size:clamp(24px,8vw,34px);line-height:.9}
+    h1 span{font-size:9px;letter-spacing:2px;margin-top:4px}
     .tagline{display:none}
-    .kicker{font-size:9px}
-    .toolbar{margin-top:8px}
-    .search{padding:7px 12px}
-    .credit{margin-top:8px;font-size:11px}
-    .tabs{padding:7px 12px 0}
-    .tab{padding:9px 4px;font-size:10px}
-    .filters{padding:7px 0 6px}
+    .kicker{font-size:8px}
+    .toolbar{margin-top:6px}
+    .search{padding:5px 11px}
+    .credit{margin-top:6px;font-size:10px}
+    .tabs{padding:5px 12px 0}
+    .tab{padding:6px 4px;font-size:9px}
+    .filters{padding:5px 0 4px}
     .chiprow{padding:0 12px 2px}
-    .hoodrow{padding:6px 12px 0}
-    .count{padding:4px 12px 0}
-    .chip{padding:6px 10px;font-size:12px}
+    .hoodrow{padding:5px 12px 0}
+    .count{padding:3px 12px 0}
+    .chip{padding:5px 9px;font-size:11px}
     .leaflet-control-zoom a{width:34px!important;height:34px!important;line-height:34px!important;font-size:20px!important}
     .locbtn{top:10px;right:10px}
     .legend{left:8px;bottom:10px;font-size:10px;padding:8px 9px}
@@ -218,7 +230,7 @@
         <input id="q" type="search" placeholder="Search a spot…" autocomplete="off" aria-label="Search places">
       </div>
     </div>
-    <a class="credit" href="https://www.trafficcamphotobooth.com/map.html?onDesktop=yes" target="_blank" rel="noopener">📸 Also try: Traffic Cam Photobooth ↗</a>
+    <a class="credit" href="https://www.trafficcamphotobooth.com" target="_blank" rel="noopener">📸 Also try: Traffic Cam Photobooth ↗</a>
   </header>
 
   <div class="tabs">
@@ -255,7 +267,8 @@ const CAT = {
   shops:{label:"Shops & Curiosities", c:"#17C3E6", e:"🛍️"},
   art:{label:"Art & Culture", c:"#FF7A1A", e:"🎨"},
   market:{label:"Flea Markets", c:"#159A5B", e:"🛒"},
-  green:{label:"Green", c:"#00B3A4", e:"🌳"}
+  green:{label:"Green", c:"#00B3A4", e:"🌳"},
+  arch:{label:"Iconic Buildings", c:"#8FA8FF", e:"🏛"}
 };
 const BOROS = {MAN:"Manhattan", BK:"Brooklyn", QNS:"Queens", BX:"Bronx", WCH:"Westchester"};
 
@@ -350,7 +363,39 @@ const P = [
  // BRONX
  {n:"Casa Amadeo",c:"drinks",h:"Longwood",b:"BX",lat:40.8192996,lng:-73.9015765,a:"786 Prospect Ave",bl:"Oldest Latin record store in NYC — say hi to Mike."},
  // WESTCHESTER
- {n:"Walter's Hot Dogs",c:"food",h:"Mamaroneck",b:"WCH",lat:40.9430139,lng:-73.7469361,a:"937 Palmer Ave",bl:"Historic pagoda stand — butter-toasted split dogs (day trip)."}
+ {n:"Walter's Hot Dogs",c:"food",h:"Mamaroneck",b:"WCH",lat:40.9430139,lng:-73.7469361,a:"937 Palmer Ave",bl:"Historic pagoda stand — butter-toasted split dogs (day trip)."},
+ // ICONIC BUILDINGS — MANHATTAN
+ {n:"Empire State Building",c:"arch",h:"Midtown",b:"MAN",lat:40.748441,lng:-73.985664,a:"20 W 34th St",bl:"The 1931 Art Deco benchmark — limestone setbacks and a mooring mast that never moored."},
+ {n:"Chrysler Building",c:"arch",h:"Midtown East",b:"MAN",lat:40.751652,lng:-73.975311,a:"405 Lexington Ave",bl:"Van Alen's 1930 steel crown — peak Art Deco, and the lobby is worth the detour."},
+ {n:"Flatiron Building",c:"arch",h:"Flatiron",b:"MAN",lat:40.741061,lng:-73.989699,a:"175 5th Ave",bl:"Burnham's 1902 Beaux-Arts wedge, six feet wide at the prow."},
+ {n:"Grand Central Terminal",c:"arch",h:"Midtown East",b:"MAN",lat:40.752726,lng:-73.977229,a:"89 E 42nd St",bl:"1913 Beaux-Arts cathedral of transit — look up at the backwards celestial ceiling."},
+ {n:"Woolworth Building",c:"arch",h:"Tribeca",b:"MAN",lat:40.712411,lng:-74.008386,a:"233 Broadway",bl:"Cass Gilbert's 1913 'Cathedral of Commerce' — neo-Gothic terracotta, world's tallest til 1930."},
+ {n:"Guggenheim Museum",c:"arch",h:"Upper East Side",b:"MAN",lat:40.782980,lng:-73.958970,a:"1071 5th Ave",bl:"Frank Lloyd Wright's 1959 spiral — walk down the ramp, not up."},
+ {n:"Seagram Building",c:"arch",h:"Midtown East",b:"MAN",lat:40.758690,lng:-73.971840,a:"375 Park Ave",bl:"Mies van der Rohe, 1958 — bronze and travertine, and the plaza that rewrote zoning."},
+ {n:"Lever House",c:"arch",h:"Midtown East",b:"MAN",lat:40.759560,lng:-73.972290,a:"390 Park Ave",bl:"1952 green-glass slab that brought the curtain wall to Park Ave."},
+ {n:"New York Public Library",c:"arch",h:"Midtown",b:"MAN",lat:40.753182,lng:-73.982253,a:"476 5th Ave",bl:"1911 Beaux-Arts marble — Patience & Fortitude out front, Rose Reading Room upstairs."},
+ {n:"Rockefeller Center",c:"arch",h:"Midtown",b:"MAN",lat:40.758740,lng:-73.978674,a:"45 Rockefeller Plaza",bl:"A whole Art Deco city block — limestone, bas-reliefs and Radio City next door."},
+ {n:"St. Patrick's Cathedral",c:"arch",h:"Midtown",b:"MAN",lat:40.758465,lng:-73.976104,a:"5th Ave & E 50th St",bl:"Renwick's neo-Gothic marble pile, 1878 — free to walk in."},
+ {n:"One World Trade Center",c:"arch",h:"Financial District",b:"MAN",lat:40.712742,lng:-74.013382,a:"285 Fulton St",bl:"1,776 ft of tapering glass, 2014 — the tallest in the hemisphere."},
+ {n:"Bayard–Condict Building",c:"arch",h:"NoHo",b:"MAN",lat:40.725900,lng:-73.993800,a:"65 Bleecker St",bl:"Louis Sullivan's only New York building — terracotta angels holding up the cornice."},
+ {n:"E.V. Haughwout Building",c:"arch",h:"SoHo",b:"MAN",lat:40.721700,lng:-74.000100,a:"488 Broadway",bl:"1857 cast iron with the world's first successful passenger elevator."},
+ {n:"Little Singer Building",c:"arch",h:"SoHo",b:"MAN",lat:40.724700,lng:-73.997900,a:"561 Broadway",bl:"Ernest Flagg, 1904 — wrought-iron balconies and glass, a proto-curtain wall."},
+ {n:"American Radiator Building",c:"arch",h:"Midtown",b:"MAN",lat:40.753000,lng:-73.984000,a:"40 W 40th St",bl:"Raymond Hood, 1924 — black brick and gold crown, meant to look like glowing coal."},
+ {n:"Ford Foundation Building",c:"arch",h:"Midtown East",b:"MAN",lat:40.749900,lng:-73.970000,a:"320 E 43rd St",bl:"1967 Kevin Roche — a full indoor garden atrium open to the public on weekdays."},
+ {n:"Jefferson Market Library",c:"arch",h:"Greenwich Village",b:"MAN",lat:40.734500,lng:-74.000600,a:"425 6th Ave",bl:"Victorian Gothic courthouse turned library — the clocktower over 6th Ave."},
+ {n:"Eldridge Street Synagogue",c:"arch",h:"Chinatown",b:"MAN",lat:40.714600,lng:-73.993200,a:"12 Eldridge St",bl:"1887 Moorish Revival, restored — the rose window alone is worth the ticket."},
+ {n:"Cathedral of St. John the Divine",c:"arch",h:"Morningside Heights",b:"MAN",lat:40.803800,lng:-73.961900,a:"1047 Amsterdam Ave",bl:"The world's largest Gothic cathedral, still unfinished after 130 years."},
+ {n:"The Dakota",c:"arch",h:"Upper West Side",b:"MAN",lat:40.776700,lng:-73.976100,a:"1 W 72nd St",bl:"1884 gables and dormers facing the park — NYC's first luxury apartment house."},
+ {n:"Hearst Tower",c:"arch",h:"Midtown West",b:"MAN",lat:40.765900,lng:-73.982900,a:"300 W 57th St",bl:"Norman Foster's faceted diagrid grafted onto a 1928 Art Deco base."},
+ {n:"Vessel",c:"arch",h:"Hudson Yards",b:"MAN",lat:40.753800,lng:-74.002100,a:"20 Hudson Yards",bl:"Heatherwick's 150-ft climbable stair honeycomb — reopened 2024 with mesh barriers, ticketed."},
+ // ICONIC BUILDINGS — BROOKLYN
+ {n:"Brooklyn Bridge",c:"arch",h:"Dumbo",b:"BK",lat:40.706100,lng:-73.996900,a:"Brooklyn Bridge Promenade",bl:"Roebling's 1883 granite towers and steel cables — walk it east to west at dusk."},
+ {n:"Williamsburgh Savings Bank Tower",c:"arch",h:"Fort Greene",b:"BK",lat:40.684500,lng:-73.977600,a:"1 Hanson Pl",bl:"1929 Byzantine-Romanesque clocktower — Brooklyn's tallest for eight decades."},
+ // ICONIC BUILDINGS — QUEENS
+ {n:"TWA Flight Center",c:"arch",h:"JFK Airport",b:"QNS",lat:40.645900,lng:-73.776700,a:"JFK Airport, Terminal 5",bl:"Saarinen's 1962 swooping concrete terminal, now a hotel — the sunken lounge is intact."},
+ {n:"New York State Pavilion",c:"arch",h:"Flushing Meadows",b:"QNS",lat:40.746200,lng:-73.844300,a:"Flushing Meadows Corona Park",bl:"Philip Johnson's 1964 World's Fair 'Tent of Tomorrow' — a magnificent ruin."},
+ // ICONIC BUILDINGS — BRONX
+ {n:"Bronx County Courthouse",c:"arch",h:"Concourse",b:"BX",lat:40.827100,lng:-73.922400,a:"851 Grand Concourse",bl:"1934 Art Deco/Moderne limestone with monumental friezes on the Grand Concourse."}
 ];
 
 /* ---- Your own spots (saved in this browser; persists when opened from your hosted link / Safari) ---- */
@@ -436,7 +481,12 @@ function fitMap(){
 }
 // legend
 const legEl=document.getElementById('legend');
-legEl.innerHTML='<b>Categories</b>'+Object.values(CAT).map(v=>`<div class="lg"><i style="background:${v.c}"></i>${v.label}</div>`).join('');
+function drawLegend(){
+  legEl.innerHTML='<b>Categories '+(legEl.classList.contains('min')?'▸':'▾')+'</b>'+
+    Object.values(CAT).map(v=>`<div class="lg"><i style="background:${v.c}"></i>${v.label}</div>`).join('');
+}
+legEl.onclick=()=>{ legEl.classList.toggle('min'); drawLegend(); };
+drawLegend();
 
 // ---- Show me on the map ----
 let meMarker=null, meCircle=null;
@@ -487,7 +537,7 @@ function updateCount(){ const n=DATA.filter(match).length; document.getElementBy
 function render(){ drawMarkers(); drawList(); updateCount(); if(state.tab==='map') fitMap(); }
 
 /* ============ DAY TRIP GENERATOR ============ */
-const dayState={vibe:"mix",area:"ALL"};
+const dayState={vibe:"mix",area:"ALL",picks:[]};
 function haversine(a,b){const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLng=(b.lng-a.lng)*Math.PI/180,
   s=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;
   return 2*R*Math.asin(Math.sqrt(s));}
@@ -496,7 +546,8 @@ const VIBES={
   vintage:{label:"Vintage Crawl",cats:["vintage","market"]},
   food:{label:"Eat Your Way",cats:["food","cafe"]},
   art:{label:"Art & Coffee",cats:["art","cafe"]},
-  night:{label:"Bars & Music",cats:["drinks","food"]}
+  night:{label:"Bars & Music",cats:["drinks","food"]},
+  arch:{label:"Architecture Walk",cats:["arch","art"]}
 };
 function buildDayUI(){
   const dp=document.getElementById('dayPanel');
@@ -510,10 +561,59 @@ function buildDayUI(){
      <div class="pillrow" id="areas">${[["ALL","Anywhere"],...Object.entries(BOROS)].map(([k,v])=>`<button class="pill ${k==='ALL'?'on':''}" data-a="${k}">${v}</button>`).join('')}</div>
      <button class="go" id="go">Plan my day →</button>
    </div>
-   <div id="result"></div>`;
+   <div id="result"></div>
+   <div class="daycard">
+     <h2>✎ My day</h2>
+     <p class="help">Search any spot — buildings included — and tap to add it. Remove with ✕. Your picks get their own walking route.</p>
+     <label class="fld">Add a stop</label>
+     <input class="inp" id="pickq" placeholder="Chrysler, Vessel, Wu's Wonton…" autocomplete="off">
+     <div class="pickres" id="pickres"></div>
+     <div id="mydaylist"></div>
+   </div>`;
   dp.querySelectorAll('#vibes .pill').forEach(b=>b.onclick=()=>{dayState.vibe=b.dataset.v;dp.querySelectorAll('#vibes .pill').forEach(x=>x.classList.toggle('on',x===b));});
   dp.querySelectorAll('#areas .pill').forEach(b=>b.onclick=()=>{dayState.area=b.dataset.a;dp.querySelectorAll('#areas .pill').forEach(x=>x.classList.toggle('on',x===b));});
   dp.querySelector('#go').onclick=planDay;
+  dp.querySelector('#pickq').addEventListener('input',e=>drawPickResults(e.target.value.trim().toLowerCase()));
+  renderMyDay();
+}
+
+/* ---- My day: search to add, ✕ to remove ---- */
+function drawPickResults(q){
+  const box=document.getElementById('pickres'); if(!box) return;
+  if(!q){ box.innerHTML=''; return; }
+  const hits=DATA.filter(p=>(p.n+' '+p.h+' '+(CAT[p.c]?CAT[p.c].label:'')).toLowerCase().includes(q)).slice(0,8);
+  if(!hits.length){ box.innerHTML='<button class="pr" disabled>No match — try another name.</button>'; return; }
+  box.innerHTML=hits.map(p=>{
+    const v=CAT[p.c]||{c:'#999',e:'📍',label:'—'}, on=dayState.picks.some(x=>x.n===p.n);
+    return `<button class="pr" style="--c:${v.c}" data-n="${esc(p.n).replace(/"/g,'&quot;')}" ${on?'disabled':''}>
+      <i></i><div>${esc(p.n)}<div class="prm">${v.e} ${v.label} · ${esc(p.h)}</div></div>
+      <div style="margin-left:auto;font-weight:700">${on?'✓':'＋'}</div></button>`;
+  }).join('');
+  box.querySelectorAll('.pr[data-n]').forEach(b=>b.onclick=()=>{
+    const p=DATA.find(x=>x.n===b.dataset.n);
+    if(p && !dayState.picks.some(x=>x.n===p.n)){ dayState.picks.push(p); renderMyDay(); }
+    const inp=document.getElementById('pickq'); if(inp){ inp.value=''; }
+    document.getElementById('pickres').innerHTML='';
+  });
+}
+function renderMyDay(){
+  const box=document.getElementById('mydaylist'); if(!box) return;
+  const picks=dayState.picks;
+  if(!picks.length){ box.innerHTML='<p class="help" style="margin:14px 0 0">Nothing picked yet.</p>'; return; }
+  let dist=0; for(let i=1;i<picks.length;i++) dist+=haversine(picks[i-1],picks[i]);
+  const wp=picks.map(p=>`${p.lat},${p.lng}`);
+  const routeUrl=`https://www.google.com/maps/dir/?api=1&origin=${wp[0]}&destination=${wp[wp.length-1]}&travelmode=walking${wp.length>2?`&waypoints=${wp.slice(1,-1).join('|')}`:''}`;
+  box.innerHTML=`<p class="help" style="margin:14px 0 4px">${picks.length} stop${picks.length!==1?'s':''}${picks.length>1?` · about ${dist.toFixed(1)} km on foot`:''}.</p>`+
+    picks.map((p,i)=>{const v=CAT[p.c]||{c:'#999',e:'📍',label:'—'};
+      return `<div class="stop"><div class="num" style="--c:${v.c}">${i+1}</div>
+        <div class="info"><h4>${esc(p.n)}</h4><div class="meta">${v.e} ${v.label} · ${esc(p.h)}</div></div>
+        <button class="del" data-i="${i}" aria-label="Remove ${esc(p.n)}">✕</button></div>`;}).join('')+
+    `<div class="routebtns">
+       ${picks.length>1?`<a class="btn" href="${routeUrl}" target="_blank" rel="noopener">Open route in Google Maps ↗</a>`:''}
+       <button class="btn ghost" id="clearday">↺ Clear</button>
+     </div>`;
+  box.querySelectorAll('.del').forEach(b=>b.onclick=()=>{ picks.splice(+b.dataset.i,1); renderMyDay(); });
+  const c=box.querySelector('#clearday'); if(c) c.onclick=()=>{ dayState.picks=[]; renderMyDay(); };
 }
 function planDay(){
   let pool=DATA.filter(p=>{
@@ -547,9 +647,15 @@ function planDay(){
     <div class="routebtns">
       <a class="btn" href="${routeUrl}" target="_blank" rel="noopener">Open route in Google Maps ↗</a>
       <button class="btn ghost" id="reroll">↻ Reroll</button>
+      <button class="btn ghost" id="tomyday">✎ Send to My day</button>
     </div>
   </div>`;
   res.querySelector('#reroll').onclick=planDay;
+  res.querySelector('#tomyday').onclick=()=>{
+    route.forEach(p=>{ if(!dayState.picks.some(x=>x.n===p.n)) dayState.picks.push(p); });
+    renderMyDay();
+    document.getElementById('mydaylist').scrollIntoView({behavior:'smooth',block:'center'});
+  };
   res.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
