@@ -168,6 +168,20 @@
     border:2px solid var(--line);background:transparent;color:#08201f;font-size:13px;font-weight:700;line-height:1}
   .chk.on{background:#3FD98A;border-color:#3FD98A}
   .chk:focus-visible{outline:3px solid var(--turq);outline-offset:2px}
+  /* weekend-at-a-glance rows */
+  .wkrow{padding:8px 2px;border-bottom:1px solid var(--line)}
+  .wkrow:last-child{border-bottom:0}
+  .wkn{font-size:13.5px;font-weight:700;color:var(--paper);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .wkh{font-weight:600;color:var(--paper2);font-size:11px}
+  .wkdays{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+  .wkd{flex:1 1 132px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap}
+  .wkd b{font-family:'Chango';font-weight:400;font-size:9.5px;letter-spacing:.4px;margin-right:3px}
+  .wkd.open{background:rgba(21,154,91,.16);color:#3FD98A}
+  .wkd.closed{background:rgba(228,35,26,.16);color:#FF7A72}
+  .wkd.unknown{background:rgba(245,233,204,.10);color:var(--paper2)}
+  .warn{background:rgba(255,122,26,.14);border:2px solid rgba(255,164,92,.45);border-radius:12px;
+    padding:9px 11px;font-size:12px;line-height:1.4;color:#FFC79A;margin:2px 0 10px}
+  .warn b{color:#FFA45C}
   .tgo{flex:0 0 auto;text-decoration:none;color:var(--gold);font-size:14px;font-weight:700;padding:2px 3px}
   .todo .del{flex:0 0 auto;width:24px;height:24px;color:var(--pink);border-color:var(--line);font-size:12px;margin:0}
   .todo .del:active{background:var(--pink);border-color:var(--pink);color:#0A2560}
@@ -897,6 +911,22 @@ function dayStart(offset){
 }
 const dayName=d=>d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'short'});
 
+/* One day's published schedule, for planning ahead rather than "right now". */
+function daySched(p,dow){
+  if(!p.hrs) return {k:'unknown',t:'—'};
+  const s=p.hrs[dow];
+  if(!s) return {k:'closed',t:'Closed'};
+  if(s==='00:00-24:00') return {k:'open',t:'24h'};
+  return {k:'open',t:s.split(',').map(r=>r.replace('-','–')).join(', ')};
+}
+/* the next Saturday / Sunday coming up (today counts if it already is that day) */
+function nextDow(dow){
+  const d=new Date(); d.setHours(0,0,0,0);
+  d.setDate(d.getDate()+((dow-d.getDay())+7)%7);
+  return d;
+}
+const shortDate=d=>d.toLocaleDateString(undefined,{day:'numeric',month:'short'});
+
 /* k-means on lat/lng, then a capped reassignment so no single day gets everything */
 function clusterDays(spots,k){
   k=Math.max(1,Math.min(k,spots.length));
@@ -981,6 +1011,7 @@ function buildMustsUI(){
       ${pending.length?`<div class="todolist">${pending.map(row).join('')}</div>`:'<p class="help">All done. 🎉</p>'}
       ${done.length?`<label class="fld">Done</label><div class="todolist">${done.map(row).join('')}</div>`:''}
     </div>
+    ${weekendCard(pending)}
     <div class="daycard">
       <h2>🗓 Split them across my days</h2>
       <p class="help">How many days are left? We'll group the ${pending.length} pending must${pending.length!==1?'s':''} by area — one walkable cluster per day, each ordered around its opening hours.</p>
@@ -1005,6 +1036,32 @@ function buildMustsUI(){
   };
   const cd=mp.querySelector('#clearDone');
   if(cd) cd.onclick=()=>{ state.done.clear(); saveSet(LS_DONE,state.done); buildMustsUI(); drawList(); };
+}
+
+/* Weekend at a glance: what's open Saturday and Sunday, and — the one that bites —
+   which musts are weekday-only and have to be done before Friday closes. */
+function weekendCard(pending){
+  const spots=pending.filter(p=>p.c!=='arch');
+  const buildings=pending.filter(p=>p.c==='arch');
+  if(!spots.length) return '';
+  const sat=nextDow(6), sun=nextDow(0);
+  const shutSat=spots.filter(p=>daySched(p,6).k==='closed');
+  const shutSun=spots.filter(p=>daySched(p,0).k==='closed');
+  const weekdayOnly=spots.filter(p=>daySched(p,6).k==='closed'&&daySched(p,0).k==='closed');
+  const cell=(p,dow)=>{const s=daySched(p,dow);
+    return `<div class="wkd ${s.k}"><b>${dow===6?'Sat':'Sun'}</b> ${s.t}</div>`;};
+  return `<div class="daycard">
+    <h2>🗓 The weekend ahead</h2>
+    <p class="help">Published hours for Sat ${shortDate(sat)} and Sun ${shortDate(sun)}, so you can slot things in before you go.
+      ${shutSat.length||shutSun.length?`<b>${shutSat.length} shut Saturday, ${shutSun.length} shut Sunday.</b>`:'Everything pending is open both days.'}</p>
+    ${weekdayOnly.length?`<div class="warn"><b>Weekdays only — do these before Friday closes:</b> ${weekdayOnly.map(p=>esc(p.n)).join(' · ')}</div>`:''}
+    <div class="todolist">
+      ${spots.map(p=>`<div class="wkrow">
+        <div class="wkn">${esc(p.n)} <span class="wkh">${esc(p.h)}</span></div>
+        <div class="wkdays">${cell(p,6)}${cell(p,0)}</div></div>`).join('')}
+    </div>
+    ${buildings.length?`<p class="help" style="margin-top:10px">${buildings.length} of your musts ${buildings.length===1?'is a building':'are buildings'} — no fixed hours here: ${buildings.map(p=>esc(p.n)).join(' · ')}.</p>`:''}
+  </div>`;
 }
 
 function splitDays(){
