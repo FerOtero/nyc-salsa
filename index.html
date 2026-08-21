@@ -151,6 +151,22 @@
   .stop .info .meta{font-size:11.5px;color:var(--paper2);font-weight:600}
   .stop .info p{font-size:12.5px;margin:5px 0 0;color:var(--paper)}
   .etaline{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:5px;font-size:11.5px;font-weight:700;color:var(--turq)}
+  /* ---------- MUSTS / TO-DO ---------- */
+  .tally{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:var(--paper2);letter-spacing:0}
+  .todo{display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1px dashed var(--line)}
+  .todo:last-child{border-bottom:0}
+  .todo .info{flex:1;min-width:0}
+  .todo .info h4{font-family:'Chango';font-weight:400;font-size:17px;margin:1px 0 2px;letter-spacing:.3px}
+  .todo .info .meta{font-size:11.5px;color:var(--paper2);font-weight:600}
+  .todo.is-done{opacity:.5}
+  .todo.is-done .info h4{text-decoration:line-through}
+  .chk{flex:0 0 auto;width:26px;height:26px;margin-top:2px;border-radius:8px;cursor:pointer;
+    border:2px solid var(--line);background:transparent;color:#08201f;font-size:15px;font-weight:700;line-height:1}
+  .chk.on{background:#3FD98A;border-color:#3FD98A}
+  .chk:focus-visible{outline:3px solid var(--turq);outline-offset:2px}
+  .tgo{flex:0 0 auto;text-decoration:none;color:var(--gold);font-size:16px;font-weight:700;padding:2px 4px}
+  .todo .del{color:var(--pink);border-color:var(--line);font-size:13px;margin-top:1px}
+  .todo .del:active{background:var(--pink);border-color:var(--pink);color:#0A2560}
   .routebtns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
   .inp{width:100%;font-family:inherit;font-size:15px;color:#12245E;background:var(--paper);border:2px solid #12245E;border-radius:10px;padding:11px 12px;margin-top:2px}
   .inp::placeholder{color:#8a7a5f}
@@ -259,6 +275,7 @@
   <div class="tabs">
     <button class="tab on" data-tab="map">🗺 Map</button>
     <button class="tab" data-tab="list">☰ List</button>
+    <button class="tab" data-tab="musts">✅ Musts</button>
     <button class="tab" data-tab="day">✦ Day Trip</button>
     <button class="tab" data-tab="add">➕ Add</button>
   </div>
@@ -275,6 +292,7 @@
       <button class="locbtn" id="locate" aria-label="Show my location">◎ Me</button>
     </section>
     <section class="view" data-view="list"><div class="listwrap"><div class="cards" id="cards"></div></div></section>
+    <section class="view" data-view="musts"><div class="day" id="mustsPanel"></div></section>
     <section class="view" data-view="day"><div class="day" id="dayPanel"></div></section>
     <section class="view" data-view="add"><div class="day" id="addPanel"></div></section>
   </div>
@@ -287,6 +305,7 @@ const CAT = {
   food:{label:"Food", c:"#E4231A", e:"🍽️"},
   cafe:{label:"Cafés & Bakeries", c:"#F2A100", e:"☕"},
   drinks:{label:"Bars & Music", c:"#7A3FF2", e:"🎷"},
+  vinyl:{label:"Records & Vinyl", c:"#C6E82E", e:"💿"},
   shops:{label:"Shops & Curiosities", c:"#17C3E6", e:"🛍️"},
   art:{label:"Art & Culture", c:"#FF7A1A", e:"🎨"},
   market:{label:"Flea Markets", c:"#159A5B", e:"🛒"},
@@ -298,127 +317,127 @@ const BOROS = {MAN:"Manhattan", BK:"Brooklyn", QNS:"Queens", BX:"Bronx", WCH:"We
 /* ============ THE LIST ============ */
 const P = [
  // MANHATTAN
- {n:"Sunny & Annie's Deli",c:"food",h:"East Village",b:"MAN",lat:40.724645,lng:-73.981711,a:"94 Avenue B",bl:"24-hour deli famous for wild pho & bulgogi sandwiches.",hrs:["00:00-24:00","00:00-24:00","00:00-24:00","00:00-24:00","00:00-24:00","00:00-24:00","00:00-24:00"]},
- {n:"Greenwich Locksmiths",c:"shops",h:"West Village",b:"MAN",lat:40.7314296,lng:-74.004262,a:"56 7th Ave S",bl:"Cult keyhole storefront; handmade subway-token keys.",hrs:[null,"08:30-18:00","08:30-18:00","08:30-18:00","08:30-18:00","08:30-18:00",null]},
- {n:"Jeju Noodle Bar",c:"food",h:"West Village",b:"MAN",lat:40.7329889,lng:-74.0073417,a:"679 Greenwich St",bl:"Michelin-starred Korean; the toro ssam bap is the move.",hrs:["15:00-22:00","17:00-22:00","17:00-22:00","17:00-22:00","17:00-22:00","15:00-22:00","15:00-22:00"]},
- {n:"Casey Rubber Stamps",c:"shops",h:"East Village",b:"MAN",lat:40.7297861,lng:-73.9851833,a:"322 E 11th St",bl:"Old-school custom rubber stamps made while you wait.",hrs:["14:30-19:00","13:00-20:00","13:00-20:00","13:00-20:00","13:00-20:00","13:00-20:00","13:00-20:00"]},
- {n:"C&B Cafe",c:"cafe",h:"East Village",b:"MAN",lat:40.7251413,lng:-73.9816557,a:"178 E 7th St",bl:"Tiny café; the pig-and-egg sandwich is legendary.",hrs:["09:00-16:00","08:00-16:00","08:00-16:00","08:00-16:00","08:00-16:00","08:00-16:00","09:00-16:00"]},
- {n:"Poseidon Bakery",c:"cafe",h:"Hell's Kitchen",b:"MAN",lat:40.7600743,lng:-73.9917478,a:"629 9th Ave",bl:"5th-gen Greek bakery, phyllo still rolled by hand.",hrs:[null,null,"10:00-18:00","10:00-18:00","10:00-18:00","10:00-18:00","10:00-18:00"]},
- {n:"Pecking House",c:"food",h:"Chinatown",b:"MAN",lat:40.7132824,lng:-73.9934821,a:"83 Henry St",bl:"Chef Eric Huang's viral chili fried chicken.",hrs:["11:00-22:00","11:00-22:00","11:00-22:00","11:00-22:00","11:00-22:00","11:00-22:00","11:00-22:00"]},
- {n:"Katagiri (Gonbei)",c:"shops",h:"Midtown East",b:"MAN",lat:40.7509054,lng:-73.9771227,a:"370 Lexington Ave",bl:"Japanese grocery with Omusubi Gonbei rice balls inside.",hrs:["10:00-20:00","08:00-21:00","08:00-21:00","08:00-21:00","08:00-21:00","08:00-21:00","10:00-20:00"]},
- {n:"Faicco's Italian Specialties",c:"food",h:"West Village",b:"MAN",lat:40.7311186,lng:-74.0031248,a:"260 Bleecker St",bl:"125-year-old deli stacking mile-high Italian heroes.",hrs:["09:00-14:00",null,"09:00-18:00","09:00-18:00","09:00-18:00","09:00-18:00","09:00-18:00"]},
- {n:"Tokio 7",c:"vintage",h:"East Village",b:"MAN",lat:40.7272639,lng:-73.9861417,a:"83 E 7th St",bl:"High-end designer consignment full of grails.",hrs:["11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00"]},
- {n:"Metropolis Vintage",c:"vintage",h:"Greenwich Village",b:"MAN",lat:40.7327132,lng:-73.9913922,a:"803 Broadway",bl:"Two floors of band tees, denim & Americana.",hrs:["13:00-22:00","13:00-22:00","13:00-22:00","13:00-22:00","13:00-22:00","13:00-23:00","13:00-23:00"]},
- {n:"Procell",c:"vintage",h:"Lower East Side",b:"MAN",lat:40.7199665,lng:-73.9936577,a:"5 Delancey St",bl:"Mike Procell's museum-grade vintage tees.",hrs:["12:00-18:00","12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00"]},
- {n:"Casa Magazines",c:"shops",h:"West Village",b:"MAN",lat:40.7376595,lng:-74.0045009,a:"22 8th Ave",bl:"Cramped, iconic international magazine paradise.",hrs:["08:00-21:00","08:00-22:00","08:00-22:00","08:00-22:00","08:00-22:00","08:00-22:00","08:00-22:00"]},
- {n:"Anthology Film Archives",c:"art",h:"East Village",b:"MAN",lat:40.7246939,lng:-73.9901657,a:"32 2nd Ave",bl:"Temple of avant-garde & experimental cinema."},
- {n:"Café Sabarsky",c:"cafe",h:"Upper East Side",b:"MAN",lat:40.7812357,lng:-73.9602568,a:"1048 5th Ave",bl:"Viennese café inside the Neue Galerie — shut for building works, back Oct 1 2026.",hrs:["09:00-21:00","09:00-18:00",null,"09:00-21:00","09:00-21:00","09:00-21:00","09:00-21:00"]},
- {n:"Wu's Wonton King",c:"food",h:"Lower East Side",b:"MAN",lat:40.7138317,lng:-73.989964,a:"165 E Broadway",bl:"BYOB Cantonese feast hall; get the Peking duck.",hrs:["09:00-22:00","09:00-22:00","09:00-22:00","09:00-22:00","09:00-22:00","09:00-22:00","09:00-22:00"]},
- {n:"Colbo",c:"shops",h:"Lower East Side",b:"MAN",lat:40.7165595,lng:-73.9912397,a:"51 Orchard St",bl:"Beautifully curated clothing + coffee + wine bar.",hrs:["11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00"]},
- {n:"Whitney Museum",c:"art",h:"Meatpacking",b:"MAN",lat:40.7395877,lng:-74.0088629,a:"99 Gansevoort St",bl:"American art with terraces over the High Line.",hrs:["10:30-18:00","10:30-18:00",null,"10:30-18:00","10:30-18:00","10:30-22:00","10:30-18:00"]},
- {n:"The Met",c:"art",h:"Upper East Side",b:"MAN",lat:40.7794366,lng:-73.963244,a:"1000 5th Ave",bl:"The encyclopedic giant — a full day on its own.",hrs:["10:00-17:00","10:00-17:00","10:00-17:00",null,"10:00-17:00","10:00-21:00","10:00-21:00"]},
- {n:"Perrotin New York",c:"art",h:"Lower East Side",b:"MAN",lat:40.7195864,lng:-73.9892543,a:"130 Orchard St",bl:"Three floors of free contemporary shows.",hrs:[null,null,"10:00-18:00","10:00-18:00","10:00-18:00","10:00-18:00","10:00-18:00"]},
- {n:"P.E. Guerin",c:"shops",h:"West Village",b:"MAN",lat:40.7382889,lng:-74.0032569,a:"23 Jane St",bl:"Since 1857 — a working decorative-hardware foundry.",hrs:[null,"09:00-17:30","09:00-17:30","09:00-17:30","09:00-17:30","09:00-17:30",null]},
- {n:"Chelsea Flea",c:"market",h:"Chelsea",b:"MAN",lat:40.74382,lng:-73.990336,a:"29 W 25th St",bl:"Weekend antiques & vintage market in Manhattan.",hrs:["08:00-17:00",null,null,null,null,null,"08:00-17:00"]},
- {n:"Philip Williams Posters",c:"art",h:"Tribeca",b:"MAN",lat:40.7151633,lng:-74.0087077,a:"122 Chambers St",bl:"Cavernous archive of original vintage posters & prints.",hrs:[null,null,"10:00-19:00","10:00-19:00","10:00-19:00","10:00-19:00","10:00-19:00"]},
- {n:"Village Revival Records",c:"drinks",h:"Greenwich Village",b:"MAN",lat:40.7294262,lng:-74.0014722,a:"197 Bleecker St",bl:"Late-night used vinyl; ask Jamal for a rec.",hrs:["12:00-22:00","12:00-22:00","12:00-22:00","12:00-22:00","12:00-22:00","12:00-22:00","12:00-22:00"]},
- {n:"Taikii Cafe",c:"cafe",h:"Lower East Side",b:"MAN",lat:40.7196639,lng:-73.9849518,a:"55 Clinton St",bl:"Warm coffee + inari sushi with vinyl spinning.",hrs:["08:30-17:30","08:00-17:00","08:00-17:00","08:00-17:00","08:00-17:00","08:00-17:00","08:30-17:30"]},
- {n:"Montagu's Gusto",c:"food",h:"Kips Bay",b:"MAN",lat:40.745711,lng:-73.975531,a:"645 2nd Ave",bl:"Focaccia sandwiches gone viral for a reason.",hrs:[null,"09:30-21:00","09:30-21:00","09:30-21:00","09:30-21:00","09:30-20:00","09:30-17:00"]},
- {n:"Sendo",c:"food",h:"NoMad",b:"MAN",lat:40.7479626,lng:-73.9889288,a:"876 6th Ave, 2nd Fl",bl:"Absurdly affordable, no-tip omakase sets.",hrs:["11:30-15:00,17:00-22:00","11:30-15:00,17:00-22:00","11:30-15:00,17:00-22:00","11:30-15:00,17:00-22:00","11:30-15:00,17:00-22:00","11:30-15:00,17:00-23:00","11:30-15:00,17:00-23:00"]},
- {n:"Hay Hay Roasted",c:"food",h:"Chinatown",b:"MAN",lat:40.7165791,lng:-73.9980362,a:"81 Mott St",bl:"Cash-only Cantonese roast duck hole-in-the-wall.",hrs:["09:00-21:00","09:00-21:00","09:00-21:00","09:00-21:00","09:00-21:00","09:00-21:00","09:00-21:00"]},
- {n:"Yan's Antique Jewelry",c:"shops",h:"Chinatown",b:"MAN",lat:40.7148458,lng:-73.9986399,a:"35 Pell St",bl:"Family-run treasure box of vintage watches.",hrs:["11:00-17:30","11:00-17:30","11:00-17:30","11:00-17:30","11:00-17:30","11:00-17:30","11:00-17:30"]},
- {n:"Zaidi's NYC",c:"shops",h:"Lower East Side",b:"MAN",lat:40.7143643,lng:-73.990969,a:"139 Division St",bl:"Sammy's tiny museum of antique lighters & oddities.",hrs:["12:00-20:00",null,null,"12:00-20:00","12:00-20:00","12:00-20:00","12:00-20:00"]},
- {n:"Theo's Haberdashery",c:"vintage",h:"East Village",b:"MAN",lat:40.7288567,lng:-73.9897548,a:"13 E 7th St",bl:"Vintage watches, rings, Americana & ephemera."},
- {n:"John's of 12th Street",c:"food",h:"East Village",b:"MAN",lat:40.7305,lng:-73.9873,a:"302 E 12th St",bl:"Candlelit old-school Italian since 1908 — red sauce, checkered tablecloths, no reservations.",hrs:["16:00-22:00","16:00-22:00","16:00-22:00","16:00-22:00","16:00-22:30","16:00-22:30","16:00-22:30"]},
- {n:"Library180",c:"shops",h:"Financial District",b:"MAN",lat:40.7052519,lng:-74.0053117,a:"180 Maiden Ln, 26th Fl",bl:"By appointment: a private archive of rare magazines."},
- {n:"194 New York",c:"vintage",h:"Lower East Side",b:"MAN",lat:40.7171811,lng:-73.9923057,a:"86 Eldridge St",bl:"Tight, top-tier curation — Stone Island, Prada Sport.",hrs:["11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00"]},
- {n:"Chambers",c:"drinks",h:"Tribeca",b:"MAN",lat:40.7145903,lng:-74.0075468,a:"94 Chambers St",bl:"Precise small plates & a genius natural wine list.",hrs:["17:30-23:30","17:30-23:30","17:30-23:30","17:30-23:30","17:30-23:30","17:30-23:30","17:30-23:30"]},
- {n:"Ludlow Flea",c:"market",h:"Lower East Side",b:"MAN",lat:40.721048,lng:-73.9880419,a:"159 Ludlow St",bl:"Small open-lot vintage market, Wed–Sun.",hrs:["12:00-20:00",null,null,"12:00-20:00","12:00-20:00","12:00-20:00","12:00-20:00"]},
- {n:"St. Anthony's / Sullivan Market",c:"market",h:"SoHo",b:"MAN",lat:40.7277478,lng:-74.0018494,a:"W Houston & Sullivan St",bl:"Sweet weekend market — hit Paul's vintage stand.",hrs:["10:00-20:00",null,null,null,"10:00-20:00","10:00-20:00","10:00-20:00"]},
- {n:"Lev",c:"food",h:"SoHo",b:"MAN",lat:40.7247,lng:-73.9958,a:"303 Lafayette St",bl:"Mysterious Middle Eastern pop-up cart — shawarma & seasonal dishes cooked live curbside."},
- {n:"Showplace Fine Art & Estate",c:"shops",h:"Upper East Side",b:"MAN",lat:40.7684902,lng:-73.968097,a:"790 Madison Ave #402",bl:"Estate art, furniture & luxury finds."},
- {n:"District One",c:"vintage",h:"Lower East Side",b:"MAN",lat:40.721208,lng:-73.9872093,a:"114 Stanton St",bl:"Grail-tier sneakers & Supreme resale.",hrs:["12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00"]},
- {n:"Church Street Surplus",c:"vintage",h:"Tribeca",b:"MAN",lat:40.720144,lng:-74.003561,a:"327 Church St",bl:"Old-school army-navy surplus — deadstock military jackets & real workwear.",hrs:[null,null,null,"11:00-18:00","11:00-18:00","11:00-18:00","11:00-18:00"]},
- {n:"6BC Botanical Garden",c:"green",h:"East Village",b:"MAN",lat:40.7238154,lng:-73.9807078,a:"630 E 6th St",bl:"Hidden community garden with a treehouse (weekends).",hrs:["12:00-18:00",null,null,null,null,null,"12:00-18:00"]},
- {n:"Luke's",c:"vintage",h:"Lower East Side",b:"MAN",lat:40.7181107,lng:-73.9904389,a:"261 Broome St",bl:"Lucas Fracher's premier men's vintage & designer.",hrs:["13:00-19:00",null,null,"13:00-19:00","13:00-19:00","13:00-19:00","13:00-19:00"]},
- {n:"Immaculate Conception Flea",c:"market",h:"East Village",b:"MAN",lat:40.7309294,lng:-73.9820759,a:"414 E 14th St",bl:"Flea market inside a landmark 1890s church.",hrs:["08:00-18:00",null,null,null,null,null,"08:00-18:00"]},
- {n:"Other People's Clothes",c:"vintage",h:"Union Square",b:"MAN",lat:40.7325961,lng:-73.9904701,a:"112 4th Ave",bl:"Vintage + designer with by-the-tag color sales.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"]},
- {n:"2nd Street — UWS",c:"vintage",h:"Upper West Side",b:"MAN",lat:40.79338,lng:-73.97312,a:"2519 Broadway",bl:"Japanese secondhand chain — premium condition.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"]},
- {n:"2nd Street — Morningside",c:"vintage",h:"Morningside Hts",b:"MAN",lat:40.80537,lng:-73.96624,a:"2875 Broadway",bl:"Japanese secondhand chain by Columbia.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"]},
- {n:"2nd Street — Union Sq",c:"vintage",h:"Union Square",b:"MAN",lat:40.734385,lng:-73.992828,a:"110 University Pl",bl:"Japanese secondhand chain.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"]},
- {n:"2nd Street — UES",c:"vintage",h:"Upper East Side",b:"MAN",lat:40.770877,lng:-73.959939,a:"1282 3rd Ave",bl:"Japanese secondhand chain.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"]},
- {n:"Gentlemen's Resale",c:"vintage",h:"Upper East Side",b:"MAN",lat:40.7742,lng:-73.9538,a:"322 E 81st St",bl:"Since 1992 — men's designer consignment: Gucci, Prada, Armani, Ralph Lauren suits & shoes.",hrs:["12:00-18:00","12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00"]},
- {n:"2nd Street — SoHo",c:"vintage",h:"SoHo",b:"MAN",lat:40.719359,lng:-74.000722,a:"27 Howard St",bl:"Japanese secondhand chain.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"]},
- {n:"2nd Street — Chelsea",c:"vintage",h:"Chelsea",b:"MAN",lat:40.745276,lng:-73.993378,a:"142 W 26th St",bl:"Japanese secondhand chain.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"]},
- {n:"2nd Street — NoHo",c:"vintage",h:"NoHo",b:"MAN",lat:40.728788,lng:-73.993539,a:"712 Broadway",bl:"Japanese secondhand chain.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"]},
- {n:"2nd Street — LES",c:"vintage",h:"Lower East Side",b:"MAN",lat:40.721935,lng:-73.988164,a:"180 Orchard St",bl:"Japanese secondhand chain.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"]},
- {n:"2nd Street — 8th Ave",c:"vintage",h:"Chelsea",b:"MAN",lat:40.7436,lng:-73.9997,a:"189 8th Ave",bl:"Japanese secondhand chain (newest NYC store).",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"]},
+ {n:"Sunny & Annie's Deli",c:"food",h:"East Village",b:"MAN",lat:40.724645,lng:-73.981711,a:"94 Avenue B",bl:"24-hour deli famous for wild pho & bulgogi sandwiches.",hrs:["00:00-24:00","00:00-24:00","00:00-24:00","00:00-24:00","00:00-24:00","00:00-24:00","00:00-24:00"],k:"deli bocadillos sandwiches pho banh mi 24 horas all night"},
+ {n:"Greenwich Locksmiths",c:"shops",h:"West Village",b:"MAN",lat:40.7314296,lng:-74.004262,a:"56 7th Ave S",bl:"Cult keyhole storefront; handmade subway-token keys.",hrs:[null,"08:30-18:00","08:30-18:00","08:30-18:00","08:30-18:00","08:30-18:00",null],k:"cerrajero locksmith llaves keys fachada facade arte art"},
+ {n:"Jeju Noodle Bar",c:"food",h:"West Village",b:"MAN",lat:40.7329889,lng:-74.0073417,a:"679 Greenwich St",bl:"Michelin-starred Korean; the toro ssam bap is the move.",hrs:["15:00-22:00","17:00-22:00","17:00-22:00","17:00-22:00","17:00-22:00","15:00-22:00","15:00-22:00"],k:"coreano korean ramen noodles fideos sopa michelin"},
+ {n:"Casey Rubber Stamps",c:"shops",h:"East Village",b:"MAN",lat:40.7297861,lng:-73.9851833,a:"322 E 11th St",bl:"Old-school custom rubber stamps made while you wait.",hrs:["14:30-19:00","13:00-20:00","13:00-20:00","13:00-20:00","13:00-20:00","13:00-20:00","13:00-20:00"],k:"sellos stamps goma rubber personalizado custom papeleria"},
+ {n:"C&B Cafe",c:"cafe",h:"East Village",b:"MAN",lat:40.7251413,lng:-73.9816557,a:"178 E 7th St",bl:"Tiny café; the pig-and-egg sandwich is legendary.",hrs:["09:00-16:00","08:00-16:00","08:00-16:00","08:00-16:00","08:00-16:00","08:00-16:00","09:00-16:00"],k:"brunch desayuno breakfast tostadas huevos eggs"},
+ {n:"Poseidon Bakery",c:"cafe",h:"Hell's Kitchen",b:"MAN",lat:40.7600743,lng:-73.9917478,a:"629 9th Ave",bl:"5th-gen Greek bakery, phyllo still rolled by hand.",hrs:[null,null,"10:00-18:00","10:00-18:00","10:00-18:00","10:00-18:00","10:00-18:00"],k:"griego greek pasteleria filo spanakopita hojaldre"},
+ {n:"Pecking House",c:"food",h:"Chinatown",b:"MAN",lat:40.7132824,lng:-73.9934821,a:"83 Henry St",bl:"Chef Eric Huang's viral chili fried chicken.",hrs:["11:00-22:00","11:00-22:00","11:00-22:00","11:00-22:00","11:00-22:00","11:00-22:00","11:00-22:00"],k:"pollo frito fried chicken chino chinese picante spicy"},
+ {n:"Katagiri (Gonbei)",c:"shops",h:"Midtown East",b:"MAN",lat:40.7509054,lng:-73.9771227,a:"370 Lexington Ave",bl:"Japanese grocery with Omusubi Gonbei rice balls inside.",hrs:["10:00-20:00","08:00-21:00","08:00-21:00","08:00-21:00","08:00-21:00","08:00-21:00","10:00-20:00"],k:"japones japanese supermercado grocery comida food onigiri"},
+ {n:"Faicco's Italian Specialties",c:"food",h:"West Village",b:"MAN",lat:40.7311186,lng:-74.0031248,a:"260 Bleecker St",bl:"125-year-old deli stacking mile-high Italian heroes.",hrs:["09:00-14:00",null,"09:00-18:00","09:00-18:00","09:00-18:00","09:00-18:00","09:00-18:00"],k:"italiano italian embutidos salumi charcuteria bocadillo hero sandwich"},
+ {n:"Tokio 7",c:"vintage",h:"East Village",b:"MAN",lat:40.7272639,lng:-73.9861417,a:"83 E 7th St",bl:"High-end designer consignment full of grails.",hrs:["11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00"],k:"japones japanese consignment disenador designer"},
+ {n:"Metropolis Vintage",c:"vintage",h:"Greenwich Village",b:"MAN",lat:40.7327132,lng:-73.9913922,a:"803 Broadway",bl:"Two floors of band tees, denim & Americana.",hrs:["13:00-22:00","13:00-22:00","13:00-22:00","13:00-22:00","13:00-22:00","13:00-23:00","13:00-23:00"],k:"camisetas tees rock band conciertos"},
+ {n:"Procell",c:"vintage",h:"Lower East Side",b:"MAN",lat:40.7199665,lng:-73.9936577,a:"5 Delancey St",bl:"Mike Procell's museum-grade vintage tees.",hrs:["12:00-18:00","12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00"],k:"camisetas tees rock band raras rare archivo"},
+ {n:"Casa Magazines",c:"shops",h:"West Village",b:"MAN",lat:40.7376595,lng:-74.0045009,a:"22 8th Ave",bl:"Cramped, iconic international magazine paradise.",hrs:["08:00-21:00","08:00-22:00","08:00-22:00","08:00-22:00","08:00-22:00","08:00-22:00","08:00-22:00"],k:"revistas magazines prensa press quiosco newsstand libros"},
+ {n:"Anthology Film Archives",c:"art",h:"East Village",b:"MAN",lat:40.7246939,lng:-73.9901657,a:"32 2nd Ave",bl:"Temple of avant-garde & experimental cinema.",k:"cine cinema peliculas films experimental vanguardia avant garde"},
+ {n:"Café Sabarsky",c:"cafe",h:"Upper East Side",b:"MAN",lat:40.7812357,lng:-73.9602568,a:"1048 5th Ave",bl:"Viennese café inside the Neue Galerie — shut for building works, back Oct 1 2026.",hrs:["09:00-21:00","09:00-18:00",null,"09:00-21:00","09:00-21:00","09:00-21:00","09:00-21:00"],k:"vienes viennese austriaco austrian tarta cake strudel museo"},
+ {n:"Wu's Wonton King",c:"food",h:"Lower East Side",b:"MAN",lat:40.7138317,lng:-73.989964,a:"165 E Broadway",bl:"BYOB Cantonese feast hall; get the Peking duck.",hrs:["09:00-22:00","09:00-22:00","09:00-22:00","09:00-22:00","09:00-22:00","09:00-22:00","09:00-22:00"],k:"chino chinese cantones cantonese pato duck wonton byob"},
+ {n:"Colbo",c:"shops",h:"Lower East Side",b:"MAN",lat:40.7165595,lng:-73.9912397,a:"51 Orchard St",bl:"Beautifully curated clothing + coffee + wine bar.",hrs:["11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00"],k:"ropa clothing cafe vino wine israeli"},
+ {n:"Whitney Museum",c:"art",h:"Meatpacking",b:"MAN",lat:40.7395877,lng:-74.0088629,a:"99 Gansevoort St",bl:"American art with terraces over the High Line.",hrs:["10:30-18:00","10:30-18:00",null,"10:30-18:00","10:30-18:00","10:30-22:00","10:30-18:00"],k:"museo museum arte americano american art high line"},
+ {n:"The Met",c:"art",h:"Upper East Side",b:"MAN",lat:40.7794366,lng:-73.963244,a:"1000 5th Ave",bl:"The encyclopedic giant — a full day on its own.",hrs:["10:00-17:00","10:00-17:00","10:00-17:00",null,"10:00-17:00","10:00-21:00","10:00-21:00"],k:"museo museum metropolitan arte art enorme huge"},
+ {n:"Perrotin New York",c:"art",h:"Lower East Side",b:"MAN",lat:40.7195864,lng:-73.9892543,a:"130 Orchard St",bl:"Three floors of free contemporary shows.",hrs:[null,null,"10:00-18:00","10:00-18:00","10:00-18:00","10:00-18:00","10:00-18:00"],k:"galeria gallery arte contemporaneo contemporary gratis free"},
+ {n:"P.E. Guerin",c:"shops",h:"West Village",b:"MAN",lat:40.7382889,lng:-74.0032569,a:"23 Jane St",bl:"Since 1857 — a working decorative-hardware foundry.",hrs:[null,"09:00-17:30","09:00-17:30","09:00-17:30","09:00-17:30","09:00-17:30",null],k:"herrajes hardware bronce bronze fundicion foundry historico"},
+ {n:"Chelsea Flea",c:"market",h:"Chelsea",b:"MAN",lat:40.74382,lng:-73.990336,a:"29 W 25th St",bl:"Weekend antiques & vintage market in Manhattan.",hrs:["08:00-17:00",null,null,null,null,null,"08:00-17:00"],k:"antiguedades antiques rastro finde weekend puestos"},
+ {n:"Philip Williams Posters",c:"art",h:"Tribeca",b:"MAN",lat:40.7151633,lng:-74.0087077,a:"122 Chambers St",bl:"Cavernous archive of original vintage posters & prints.",hrs:[null,null,"10:00-19:00","10:00-19:00","10:00-19:00","10:00-19:00","10:00-19:00"],k:"carteles posters grabados prints archivo vintage"},
+ {n:"Village Revival Records",c:"vinyl",h:"Greenwich Village",b:"MAN",lat:40.7294262,lng:-74.0014722,a:"197 Bleecker St",bl:"Late-night used vinyl; ask Jamal for a rec.",hrs:["12:00-22:00","12:00-22:00","12:00-22:00","12:00-22:00","12:00-22:00","12:00-22:00","12:00-22:00"],k:"vinilo vinilos discos records usados segunda mano tarde noche late"},
+ {n:"Taikii Cafe",c:"cafe",h:"Lower East Side",b:"MAN",lat:40.7196639,lng:-73.9849518,a:"55 Clinton St",bl:"Warm coffee + inari sushi with vinyl spinning.",hrs:["08:30-17:30","08:00-17:00","08:00-17:00","08:00-17:00","08:00-17:00","08:00-17:00","08:30-17:30"],k:"japones japanese matcha inari vinilo vinyl discos"},
+ {n:"Montagu's Gusto",c:"food",h:"Kips Bay",b:"MAN",lat:40.745711,lng:-73.975531,a:"645 2nd Ave",bl:"Focaccia sandwiches gone viral for a reason.",hrs:[null,"09:30-21:00","09:30-21:00","09:30-21:00","09:30-21:00","09:30-20:00","09:30-17:00"],k:"focaccia bocadillos sandwiches italiano italian"},
+ {n:"Sendo",c:"food",h:"NoMad",b:"MAN",lat:40.7479626,lng:-73.9889288,a:"876 6th Ave, 2nd Fl",bl:"Absurdly affordable, no-tip omakase sets.",hrs:["11:30-15:00,17:00-22:00","11:30-15:00,17:00-22:00","11:30-15:00,17:00-22:00","11:30-15:00,17:00-22:00","11:30-15:00,17:00-22:00","11:30-15:00,17:00-23:00","11:30-15:00,17:00-23:00"],k:"sushi omakase japones japanese barato affordable"},
+ {n:"Hay Hay Roasted",c:"food",h:"Chinatown",b:"MAN",lat:40.7165791,lng:-73.9980362,a:"81 Mott St",bl:"Cash-only Cantonese roast duck hole-in-the-wall.",hrs:["09:00-21:00","09:00-21:00","09:00-21:00","09:00-21:00","09:00-21:00","09:00-21:00","09:00-21:00"],k:"pato duck asado roast chino chinese cantones efectivo cash"},
+ {n:"Yan's Antique Jewelry",c:"shops",h:"Chinatown",b:"MAN",lat:40.7148458,lng:-73.9986399,a:"35 Pell St",bl:"Family-run treasure box of vintage watches.",hrs:["11:00-17:30","11:00-17:30","11:00-17:30","11:00-17:30","11:00-17:30","11:00-17:30","11:00-17:30"],k:"joyas jewelry relojes watches antiguo antique familiar"},
+ {n:"Zaidi's NYC",c:"shops",h:"Lower East Side",b:"MAN",lat:40.7143643,lng:-73.990969,a:"139 Division St",bl:"Sammy's tiny museum of antique lighters & oddities.",hrs:["12:00-20:00",null,null,"12:00-20:00","12:00-20:00","12:00-20:00","12:00-20:00"],k:"mecheros lighters encendedores antiguedades oddities curiosidades"},
+ {n:"Theo's Haberdashery",c:"vintage",h:"East Village",b:"MAN",lat:40.7288567,lng:-73.9897548,a:"13 E 7th St",bl:"Vintage watches, rings, Americana & ephemera.",k:"relojes watches anillos rings americana puros cigars"},
+ {n:"John's of 12th Street",c:"food",h:"East Village",b:"MAN",lat:40.7305,lng:-73.9873,a:"302 E 12th St",bl:"Candlelit old-school Italian since 1908 — red sauce, checkered tablecloths, no reservations.",hrs:["16:00-22:00","16:00-22:00","16:00-22:00","16:00-22:00","16:00-22:30","16:00-22:30","16:00-22:30"],k:"italiano italian pasta red sauce historico historic velas candlelit"},
+ {n:"Library180",c:"shops",h:"Financial District",b:"MAN",lat:40.7052519,lng:-74.0053117,a:"180 Maiden Ln, 26th Fl",bl:"By appointment: a private archive of rare magazines.",k:"revistas magazines archivo archive raras rare cita appointment"},
+ {n:"194 New York",c:"vintage",h:"Lower East Side",b:"MAN",lat:40.7171811,lng:-73.9923057,a:"86 Eldridge St",bl:"Tight, top-tier curation — Stone Island, Prada Sport.",hrs:["11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00","11:00-19:00"],k:"stone island prada disenador designer archivo archive"},
+ {n:"Chambers",c:"drinks",h:"Tribeca",b:"MAN",lat:40.7145903,lng:-74.0075468,a:"94 Chambers St",bl:"Precise small plates & a genius natural wine list.",hrs:["17:30-23:30","17:30-23:30","17:30-23:30","17:30-23:30","17:30-23:30","17:30-23:30","17:30-23:30"],k:"vino wine natural bistro cena dinner sommelier"},
+ {n:"Ludlow Flea",c:"market",h:"Lower East Side",b:"MAN",lat:40.721048,lng:-73.9880419,a:"159 Ludlow St",bl:"Small open-lot vintage market, Wed–Sun.",hrs:["12:00-20:00",null,null,"12:00-20:00","12:00-20:00","12:00-20:00","12:00-20:00"],k:"vintage puestos stalls rastro"},
+ {n:"St. Anthony's / Sullivan Market",c:"market",h:"SoHo",b:"MAN",lat:40.7277478,lng:-74.0018494,a:"W Houston & Sullivan St",bl:"Sweet weekend market — hit Paul's vintage stand.",hrs:["10:00-20:00",null,null,null,"10:00-20:00","10:00-20:00","10:00-20:00"],k:"puestos stalls artesania crafts rastro finde weekend"},
+ {n:"Lev",c:"food",h:"SoHo",b:"MAN",lat:40.7247,lng:-73.9958,a:"303 Lafayette St",bl:"Mysterious Middle Eastern pop-up cart — shawarma & seasonal dishes cooked live curbside.",k:"shawarma oriente medio middle eastern carrito cart pop up puesto"},
+ {n:"Showplace Fine Art & Estate",c:"shops",h:"Upper East Side",b:"MAN",lat:40.7684902,lng:-73.968097,a:"790 Madison Ave #402",bl:"Estate art, furniture & luxury finds.",k:"antiguedades antiques subasta auction muebles furniture lujo"},
+ {n:"District One",c:"vintage",h:"Lower East Side",b:"MAN",lat:40.721208,lng:-73.9872093,a:"114 Stanton St",bl:"Grail-tier sneakers & Supreme resale.",hrs:["12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00"],k:"zapatillas sneakers supreme streetwear reventa resale"},
+ {n:"Church Street Surplus",c:"vintage",h:"Tribeca",b:"MAN",lat:40.720144,lng:-74.003561,a:"327 Church St",bl:"Old-school army-navy surplus — deadstock military jackets & real workwear.",hrs:[null,null,null,"11:00-18:00","11:00-18:00","11:00-18:00","11:00-18:00"],k:"militar military surplus excedente workwear ropa de trabajo chaquetas"},
+ {n:"6BC Botanical Garden",c:"green",h:"East Village",b:"MAN",lat:40.7238154,lng:-73.9807078,a:"630 E 6th St",bl:"Hidden community garden with a treehouse (weekends).",hrs:["12:00-18:00",null,null,null,null,null,"12:00-18:00"],k:"jardin garden comunitario community casa arbol treehouse escondido hidden"},
+ {n:"Luke's",c:"vintage",h:"Lower East Side",b:"MAN",lat:40.7181107,lng:-73.9904389,a:"261 Broome St",bl:"Lucas Fracher's premier men's vintage & designer.",hrs:["13:00-19:00",null,null,"13:00-19:00","13:00-19:00","13:00-19:00","13:00-19:00"],k:"disenador designer balenciaga prada archivo archive hombre men"},
+ {n:"Immaculate Conception Flea",c:"market",h:"East Village",b:"MAN",lat:40.7309294,lng:-73.9820759,a:"414 E 14th St",bl:"Flea market inside a landmark 1890s church.",hrs:["08:00-18:00",null,null,null,null,null,"08:00-18:00"],k:"iglesia church rastro finde weekend puestos"},
+ {n:"Other People's Clothes",c:"vintage",h:"Union Square",b:"MAN",lat:40.7325961,lng:-73.9904701,a:"112 4th Ave",bl:"Vintage + designer with by-the-tag color sales.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"],k:"thrift segunda mano barato cheap"},
+ {n:"2nd Street — UWS",c:"vintage",h:"Upper West Side",b:"MAN",lat:40.79338,lng:-73.97312,a:"2519 Broadway",bl:"Japanese secondhand chain — premium condition.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"],k:"japones japanese cadena chain segunda mano secondhand thrift"},
+ {n:"2nd Street — Morningside",c:"vintage",h:"Morningside Hts",b:"MAN",lat:40.80537,lng:-73.96624,a:"2875 Broadway",bl:"Japanese secondhand chain by Columbia.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"],k:"japones japanese cadena chain segunda mano secondhand thrift"},
+ {n:"2nd Street — Union Sq",c:"vintage",h:"Union Square",b:"MAN",lat:40.734385,lng:-73.992828,a:"110 University Pl",bl:"Japanese secondhand chain.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"],k:"japones japanese cadena chain segunda mano secondhand thrift"},
+ {n:"2nd Street — UES",c:"vintage",h:"Upper East Side",b:"MAN",lat:40.770877,lng:-73.959939,a:"1282 3rd Ave",bl:"Japanese secondhand chain.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"],k:"japones japanese cadena chain segunda mano secondhand thrift"},
+ {n:"Gentlemen's Resale",c:"vintage",h:"Upper East Side",b:"MAN",lat:40.7742,lng:-73.9538,a:"322 E 81st St",bl:"Since 1992 — men's designer consignment: Gucci, Prada, Armani, Ralph Lauren suits & shoes.",hrs:["12:00-18:00","12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00","12:00-19:00"],k:"hombre men traje suit gucci prada armani consignment lujo luxury"},
+ {n:"2nd Street — SoHo",c:"vintage",h:"SoHo",b:"MAN",lat:40.719359,lng:-74.000722,a:"27 Howard St",bl:"Japanese secondhand chain.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"],k:"japones japanese cadena chain segunda mano secondhand thrift"},
+ {n:"2nd Street — Chelsea",c:"vintage",h:"Chelsea",b:"MAN",lat:40.745276,lng:-73.993378,a:"142 W 26th St",bl:"Japanese secondhand chain.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"],k:"japones japanese cadena chain segunda mano secondhand thrift"},
+ {n:"2nd Street — NoHo",c:"vintage",h:"NoHo",b:"MAN",lat:40.728788,lng:-73.993539,a:"712 Broadway",bl:"Japanese secondhand chain.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"],k:"japones japanese cadena chain segunda mano secondhand thrift"},
+ {n:"2nd Street — LES",c:"vintage",h:"Lower East Side",b:"MAN",lat:40.721935,lng:-73.988164,a:"180 Orchard St",bl:"Japanese secondhand chain.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"],k:"japones japanese cadena chain segunda mano secondhand thrift"},
+ {n:"2nd Street — 8th Ave",c:"vintage",h:"Chelsea",b:"MAN",lat:40.7436,lng:-73.9997,a:"189 8th Ave",bl:"Japanese secondhand chain (newest NYC store).",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"],k:"japones japanese cadena chain segunda mano secondhand thrift"},
  // QUEENS
- {n:"Zapatería Mexico",c:"shops",h:"Jackson Heights",b:"QNS",lat:40.7484289,lng:-73.8780375,a:"88-07 Roosevelt Ave",bl:"Western boots, hats & belts straight from Guanajuato.",hrs:["10:00-20:00","10:00-20:00","10:00-20:00","10:00-20:00","10:00-20:00","10:00-20:00","10:00-20:00"]},
- {n:"Myrtle Pub",c:"drinks",h:"Ridgewood",b:"QNS",lat:40.7005496,lng:-73.9040958,a:"56-53 Myrtle Ave",bl:"Dive with free popcorn, free hot dogs, cheap beer.",hrs:["13:00-04:00","15:00-04:00","15:00-04:00","15:00-04:00","15:00-04:00","15:00-04:00","13:00-04:00"]},
- {n:"Merguez and Frites",c:"food",h:"Astoria",b:"QNS",lat:40.7677175,lng:-73.9114921,a:"40-06 25th Ave",bl:"Algerian hole-in-the-wall; the merguez sando slaps.",hrs:["11:30-24:00","11:30-24:00","11:30-24:00","11:30-24:00","11:30-24:00","11:30-24:00","11:30-24:00"]},
+ {n:"Zapatería Mexico",c:"shops",h:"Jackson Heights",b:"QNS",lat:40.7484289,lng:-73.8780375,a:"88-07 Roosevelt Ave",bl:"Western boots, hats & belts straight from Guanajuato.",hrs:["10:00-20:00","10:00-20:00","10:00-20:00","10:00-20:00","10:00-20:00","10:00-20:00","10:00-20:00"],k:"botas boots vaquero western mexicano mexican sombreros hats cinturones belts"},
+ {n:"Myrtle Pub",c:"drinks",h:"Ridgewood",b:"QNS",lat:40.7005496,lng:-73.9040958,a:"56-53 Myrtle Ave",bl:"Dive with free popcorn, free hot dogs, cheap beer.",hrs:["13:00-04:00","15:00-04:00","15:00-04:00","15:00-04:00","15:00-04:00","15:00-04:00","13:00-04:00"],k:"pub barato cheap happy hour tarde noche late"},
+ {n:"Merguez and Frites",c:"food",h:"Astoria",b:"QNS",lat:40.7677175,lng:-73.9114921,a:"40-06 25th Ave",bl:"Algerian hole-in-the-wall; the merguez sando slaps.",hrs:["11:30-24:00","11:30-24:00","11:30-24:00","11:30-24:00","11:30-24:00","11:30-24:00","11:30-24:00"],k:"norteafricano north african tunecino merguez patatas fries"},
  // BROOKLYN
- {n:"Front General Store",c:"vintage",h:"Dumbo",b:"BK",lat:40.7025494,lng:-73.9872752,a:"143 Front St",bl:"Rugged new & vintage menswear, tightly curated.",hrs:["10:30-18:30","11:30-19:30","11:30-19:30","11:30-19:30","11:30-19:30","11:30-19:30","11:30-19:30"]},
- {n:"Aunts et Uncles",c:"food",h:"Flatbush",b:"BK",lat:40.6520677,lng:-73.9495411,a:"1407 Nostrand Ave",bl:"Beloved vegan spot — the lasagna converts skeptics.",hrs:["10:00-20:00","10:00-20:00","10:00-20:00","10:00-20:00","10:00-22:00","10:00-22:00","10:00-22:00"]},
- {n:"Ornithology Jazz Club",c:"drinks",h:"Bushwick",b:"BK",lat:40.6955888,lng:-73.9319823,a:"6 Suydam St",bl:"Tucked-away jazz; student nights are a steal.",hrs:["18:00-02:00","18:00-02:00","18:00-02:00","18:00-02:00","18:00-02:00","18:00-02:00","18:00-02:00"]},
- {n:"Gertrude's",c:"food",h:"Prospect Heights",b:"BK",lat:40.6790422,lng:-73.9715398,a:"605 Carlton Ave",bl:"Latkes, smoked fish & great cocktails.",hrs:["09:30-15:00,17:00-22:00","17:00-22:00","17:00-22:00","17:00-22:00","17:00-22:00","17:00-22:00","09:30-15:00,17:00-22:00"]},
- {n:"Peter Pan Donut",c:"cafe",h:"Greenpoint",b:"BK",lat:40.7260834,lng:-73.9523074,a:"727 Manhattan Ave",bl:"Cash-only old-school donuts; bring an appetite.",hrs:["05:30-18:00","04:30-18:00","04:30-18:00","04:30-18:00","04:30-19:00","04:30-19:00","05:00-19:00"]},
- {n:"Vinnie's Pizzeria",c:"food",h:"Williamsburg",b:"BK",lat:40.7188807,lng:-73.9567755,a:"148 Bedford Ave",bl:"Meme-famous slices, killer crust, vegan options.",hrs:["11:30-23:00",null,null,"11:30-23:00","11:30-24:00","11:30-02:00","11:30-02:00"]},
- {n:"Rugged Road & Co.",c:"vintage",h:"Williamsburg",b:"BK",lat:40.7177,lng:-73.9579,a:"218 Bedford Ave",bl:"Men's vintage — 1930s–60s military surplus, workwear, bowling shirts & Americana.",hrs:["13:00-19:30","13:00-19:30",null,"13:00-19:30","13:00-19:30","13:00-19:30","13:00-20:00"]},
- {n:"Win Son",c:"food",h:"East Williamsburg",b:"BK",lat:40.7074661,lng:-73.9434952,a:"159 Graham Ave",bl:"Taiwanese-American; hit the bakery across the street too.",hrs:["17:30-22:00","17:30-22:00","17:30-23:00","17:30-23:00","17:30-23:00","17:30-23:00","17:30-23:00"]},
- {n:"Rhodora",c:"drinks",h:"Fort Greene",b:"BK",lat:40.6917328,lng:-73.9714244,a:"197 Adelphi St",bl:"Zero-waste natural wine bar, order-at-the-bar style.",hrs:["14:00-23:00","17:00-23:00","17:00-23:00","17:00-23:00","17:00-23:00","16:00-24:00","14:00-24:00"]},
- {n:"L&B Spumoni Gardens",c:"food",h:"Bensonhurst",b:"BK",lat:40.5947371,lng:-73.9812873,a:"2725 86th St",bl:"Legendary upside-down Sicilian squares + spumoni.",hrs:["11:00-23:30","11:00-23:30","11:00-23:30","11:00-23:30","11:00-23:30","11:00-23:30","11:00-23:30"]},
- {n:"10 Ft Single (Stella Dallas)",c:"vintage",h:"Williamsburg",b:"BK",lat:40.7144459,lng:-73.9535337,a:"285 N 6th St",bl:"Massive, well-organized Americana vintage.",hrs:["12:00-19:15","12:00-19:15","12:00-19:15","12:00-19:15","12:00-19:15","12:00-19:15","12:00-19:15"]},
- {n:"Beacon's Closet — Greenpoint",c:"vintage",h:"Greenpoint",b:"BK",lat:40.7236258,lng:-73.9525832,a:"74 Guernsey St",bl:"The big flagship — dig for gems at fair prices.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"]},
- {n:"Beacon's Closet — Park Slope",c:"vintage",h:"Park Slope",b:"BK",lat:40.6801598,lng:-73.9780866,a:"92 5th Ave",bl:"Smaller Slope branch of the vintage staple.",hrs:["11:00-20:00","12:00-21:00","12:00-21:00","12:00-21:00","12:00-21:00","12:00-21:00","11:00-20:00"]},
- {n:"Beacon's Closet — Bushwick",c:"vintage",h:"Bushwick",b:"BK",lat:40.7040462,lng:-73.9332974,a:"23 Bogart St",bl:"Bushwick branch, cheaper tags than most.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"]},
- {n:"Yoseka Stationery",c:"shops",h:"Greenpoint",b:"BK",lat:40.7285107,lng:-73.959155,a:"63 West St",bl:"Dreamy Asian stationery; test every pen.",hrs:["10:00-19:00",null,null,"13:00-19:00","13:00-19:00","10:00-19:00","10:00-19:00"]},
- {n:"Bersi Ethiopian",c:"food",h:"Greenpoint",b:"BK",lat:40.7346617,lng:-73.9551437,a:"1049 Manhattan Ave",bl:"All-plant Ethiopian; the veggie combo is a feast.",hrs:["12:30-22:00","16:00-22:00","16:00-22:00","16:00-22:00","16:00-22:00","12:30-22:00","12:30-22:00"]},
- {n:"Ebreo Vintage",c:"vintage",h:"Williamsburg",b:"BK",lat:40.7146812,lng:-73.96237,a:"142 Grand St",bl:"Vintage suiting & styling — ask for Stan.",hrs:["11:00-20:00","12:00-20:00","12:00-20:00","12:00-20:00","12:00-20:00","12:00-20:00","11:00-20:00"]},
- {n:"Three Decker Diner",c:"food",h:"Greenpoint",b:"BK",lat:40.7252414,lng:-73.9518345,a:"695 Manhattan Ave",bl:"24-hour classic diner; burgers & cherry pie.",hrs:["07:00-24:00","07:00-24:00","07:00-24:00","07:00-24:00","07:00-02:00","07:00-02:00","07:00-02:00"]},
- {n:"Frog",c:"drinks",h:"Bed-Stuy",b:"BK",lat:40.6848704,lng:-73.9385509,a:"358 Marcus Garvey Blvd",bl:"Natural wine bar with a pool table & backyard — reported shut on permits since May 2026, call first.",hrs:["15:00-24:00","17:00-24:00","17:00-24:00","17:00-24:00","17:00-24:00","15:00-24:00","15:00-24:00"]},
- {n:"Other People's Clothes",c:"vintage",h:"Bushwick",b:"BK",lat:40.7051044,lng:-73.924537,a:"333 Troutman St",bl:"Loud, big vintage floor — designer mixed in.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"]},
- {n:"Zapatería Mexico NY",c:"shops",h:"Sunset Park",b:"BK",lat:40.6476794,lng:-74.0074474,a:"4505 5th Ave",bl:"Leather boots & Western wear, Brooklyn branch.",hrs:["10:00-20:00","10:00-20:00","10:00-20:00","10:00-20:00","10:00-20:00","10:00-20:00","10:00-20:00"]},
- {n:"Al-Aqsa Bakery",c:"food",h:"Bay Ridge",b:"BK",lat:40.6329976,lng:-74.0210444,a:"6917 5th Ave",bl:"Palestinian bakery — shawarma, falafel, fresh pita.",hrs:["09:30-23:00","09:30-23:00","09:30-23:00","09:30-23:00","09:30-23:00","09:30-24:00","09:30-24:00"]},
- {n:"2nd Street — Williamsburg",c:"vintage",h:"Williamsburg",b:"BK",lat:40.717567,lng:-73.964476,a:"187 Kent Ave",bl:"Japanese secondhand chain.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"]},
- {n:"2nd Street — Cobble Hill",c:"vintage",h:"Cobble Hill",b:"BK",lat:40.685174,lng:-73.991773,a:"192 Smith St",bl:"Japanese secondhand chain on Smith St.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"]},
- {n:"2nd Street — Dumbo",c:"vintage",h:"Dumbo",b:"BK",lat:40.702366,lng:-73.990033,a:"70 Front St",bl:"Japanese secondhand chain.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"]},
+ {n:"Front General Store",c:"vintage",h:"Dumbo",b:"BK",lat:40.7025494,lng:-73.9872752,a:"143 Front St",bl:"Rugged new & vintage menswear, tightly curated.",hrs:["10:30-18:30","11:30-19:30","11:30-19:30","11:30-19:30","11:30-19:30","11:30-19:30","11:30-19:30"],k:"japones japanese general store accesorios accessories"},
+ {n:"Aunts et Uncles",c:"food",h:"Flatbush",b:"BK",lat:40.6520677,lng:-73.9495411,a:"1407 Nostrand Ave",bl:"Beloved vegan spot — the lasagna converts skeptics.",hrs:["10:00-20:00","10:00-20:00","10:00-20:00","10:00-20:00","10:00-22:00","10:00-22:00","10:00-22:00"],k:"vegano vegan caribeno caribbean plant based hamburguesa"},
+ {n:"Ornithology Jazz Club",c:"drinks",h:"Bushwick",b:"BK",lat:40.6955888,lng:-73.9319823,a:"6 Suydam St",bl:"Tucked-away jazz; student nights are a steal.",hrs:["18:00-02:00","18:00-02:00","18:00-02:00","18:00-02:00","18:00-02:00","18:00-02:00","18:00-02:00"],k:"jazz musica en vivo live music vegano vegan sin cover"},
+ {n:"Gertrude's",c:"food",h:"Prospect Heights",b:"BK",lat:40.6790422,lng:-73.9715398,a:"605 Carlton Ave",bl:"Latkes, smoked fish & great cocktails.",hrs:["09:30-15:00,17:00-22:00","17:00-22:00","17:00-22:00","17:00-22:00","17:00-22:00","17:00-22:00","09:30-15:00,17:00-22:00"],k:"bistro brunch frances french cena dinner"},
+ {n:"Peter Pan Donut",c:"cafe",h:"Greenpoint",b:"BK",lat:40.7260834,lng:-73.9523074,a:"727 Manhattan Ave",bl:"Cash-only old-school donuts; bring an appetite.",hrs:["05:30-18:00","04:30-18:00","04:30-18:00","04:30-18:00","04:30-19:00","04:30-19:00","05:00-19:00"],k:"donuts rosquillas dulces desayuno breakfast"},
+ {n:"Vinnie's Pizzeria",c:"food",h:"Williamsburg",b:"BK",lat:40.7188807,lng:-73.9567755,a:"148 Bedford Ave",bl:"Meme-famous slices, killer crust, vegan options.",hrs:["11:30-23:00",null,null,"11:30-23:00","11:30-24:00","11:30-02:00","11:30-02:00"],k:"pizza porciones slices vegana vegan"},
+ {n:"Rugged Road & Co.",c:"vintage",h:"Williamsburg",b:"BK",lat:40.7177,lng:-73.9579,a:"218 Bedford Ave",bl:"Men's vintage — 1930s–60s military surplus, workwear, bowling shirts & Americana.",hrs:["13:00-19:30","13:00-19:30",null,"13:00-19:30","13:00-19:30","13:00-19:30","13:00-20:00"],k:"militar military workwear americana bowling hombre men"},
+ {n:"Win Son",c:"food",h:"East Williamsburg",b:"BK",lat:40.7074661,lng:-73.9434952,a:"159 Graham Ave",bl:"Taiwanese-American; hit the bakery across the street too.",hrs:["17:30-22:00","17:30-22:00","17:30-23:00","17:30-23:00","17:30-23:00","17:30-23:00","17:30-23:00"],k:"taiwanes taiwanese asiatico asian cena"},
+ {n:"Rhodora",c:"drinks",h:"Fort Greene",b:"BK",lat:40.6917328,lng:-73.9714244,a:"197 Adelphi St",bl:"Zero-waste natural wine bar, order-at-the-bar style.",hrs:["14:00-23:00","17:00-23:00","17:00-23:00","17:00-23:00","17:00-23:00","16:00-24:00","14:00-24:00"],k:"vino wine natural sin residuos zero waste"},
+ {n:"L&B Spumoni Gardens",c:"food",h:"Bensonhurst",b:"BK",lat:40.5947371,lng:-73.9812873,a:"2725 86th St",bl:"Legendary upside-down Sicilian squares + spumoni.",hrs:["11:00-23:30","11:00-23:30","11:00-23:30","11:00-23:30","11:00-23:30","11:00-23:30","11:00-23:30"],k:"pizza siciliana sicilian cuadrada square spumoni helado ice cream"},
+ {n:"10 Ft Single (Stella Dallas)",c:"vintage",h:"Williamsburg",b:"BK",lat:40.7144459,lng:-73.9535337,a:"285 N 6th St",bl:"Massive, well-organized Americana vintage.",hrs:["12:00-19:15","12:00-19:15","12:00-19:15","12:00-19:15","12:00-19:15","12:00-19:15","12:00-19:15"],k:"stella dallas americana grande big organizado"},
+ {n:"Beacon's Closet — Greenpoint",c:"vintage",h:"Greenpoint",b:"BK",lat:40.7236258,lng:-73.9525832,a:"74 Guernsey St",bl:"The big flagship — dig for gems at fair prices.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"],k:"thrift segunda mano secondhand cadena chain compra venta"},
+ {n:"Beacon's Closet — Park Slope",c:"vintage",h:"Park Slope",b:"BK",lat:40.6801598,lng:-73.9780866,a:"92 5th Ave",bl:"Smaller Slope branch of the vintage staple.",hrs:["11:00-20:00","12:00-21:00","12:00-21:00","12:00-21:00","12:00-21:00","12:00-21:00","11:00-20:00"],k:"thrift segunda mano secondhand cadena chain compra venta"},
+ {n:"Beacon's Closet — Bushwick",c:"vintage",h:"Bushwick",b:"BK",lat:40.7040462,lng:-73.9332974,a:"23 Bogart St",bl:"Bushwick branch, cheaper tags than most.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"],k:"thrift segunda mano secondhand cadena chain compra venta"},
+ {n:"Yoseka Stationery",c:"shops",h:"Greenpoint",b:"BK",lat:40.7285107,lng:-73.959155,a:"63 West St",bl:"Dreamy Asian stationery; test every pen.",hrs:["10:00-19:00",null,null,"13:00-19:00","13:00-19:00","10:00-19:00","10:00-19:00"],k:"papeleria stationery boligrafos pens japones japanese cuadernos"},
+ {n:"Bersi Ethiopian",c:"food",h:"Greenpoint",b:"BK",lat:40.7346617,lng:-73.9551437,a:"1049 Manhattan Ave",bl:"All-plant Ethiopian; the veggie combo is a feast.",hrs:["12:30-22:00","16:00-22:00","16:00-22:00","16:00-22:00","16:00-22:00","12:30-22:00","12:30-22:00"],k:"etiope ethiopian vegano vegan injera"},
+ {n:"Ebreo Vintage",c:"vintage",h:"Williamsburg",b:"BK",lat:40.7146812,lng:-73.96237,a:"142 Grand St",bl:"Vintage suiting & styling — ask for Stan.",hrs:["11:00-20:00","12:00-20:00","12:00-20:00","12:00-20:00","12:00-20:00","12:00-20:00","11:00-20:00"],k:"italiano italian traje suit sastreria tailoring hombre men"},
+ {n:"Three Decker Diner",c:"food",h:"Greenpoint",b:"BK",lat:40.7252414,lng:-73.9518345,a:"695 Manhattan Ave",bl:"24-hour classic diner; burgers & cherry pie.",hrs:["07:00-24:00","07:00-24:00","07:00-24:00","07:00-24:00","07:00-02:00","07:00-02:00","07:00-02:00"],k:"diner americano american hamburguesas burgers 24 horas tarta pie"},
+ {n:"Frog",c:"drinks",h:"Bed-Stuy",b:"BK",lat:40.6848704,lng:-73.9385509,a:"358 Marcus Garvey Blvd",bl:"Natural wine bar with a pool table & backyard — reported shut on permits since May 2026, call first.",hrs:["15:00-24:00","17:00-24:00","17:00-24:00","17:00-24:00","17:00-24:00","15:00-24:00","15:00-24:00"],k:"vino wine natural billar pool patio jardin"},
+ {n:"Other People's Clothes",c:"vintage",h:"Bushwick",b:"BK",lat:40.7051044,lng:-73.924537,a:"333 Troutman St",bl:"Loud, big vintage floor — designer mixed in.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"],k:"thrift segunda mano barato cheap"},
+ {n:"Zapatería Mexico NY",c:"shops",h:"Sunset Park",b:"BK",lat:40.6476794,lng:-74.0074474,a:"4505 5th Ave",bl:"Leather boots & Western wear, Brooklyn branch.",hrs:["10:00-20:00","10:00-20:00","10:00-20:00","10:00-20:00","10:00-20:00","10:00-20:00","10:00-20:00"],k:"botas boots vaquero western mexicano mexican sombreros hats cinturones belts"},
+ {n:"Al-Aqsa Bakery",c:"food",h:"Bay Ridge",b:"BK",lat:40.6329976,lng:-74.0210444,a:"6917 5th Ave",bl:"Palestinian bakery — shawarma, falafel, fresh pita.",hrs:["09:30-23:00","09:30-23:00","09:30-23:00","09:30-23:00","09:30-23:00","09:30-24:00","09:30-24:00"],k:"palestino palestinian arabe arab hummus falafel pita panaderia"},
+ {n:"2nd Street — Williamsburg",c:"vintage",h:"Williamsburg",b:"BK",lat:40.717567,lng:-73.964476,a:"187 Kent Ave",bl:"Japanese secondhand chain.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"],k:"japones japanese cadena chain segunda mano secondhand thrift"},
+ {n:"2nd Street — Cobble Hill",c:"vintage",h:"Cobble Hill",b:"BK",lat:40.685174,lng:-73.991773,a:"192 Smith St",bl:"Japanese secondhand chain on Smith St.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"],k:"japones japanese cadena chain segunda mano secondhand thrift"},
+ {n:"2nd Street — Dumbo",c:"vintage",h:"Dumbo",b:"BK",lat:40.702366,lng:-73.990033,a:"70 Front St",bl:"Japanese secondhand chain.",hrs:["11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00","11:00-20:00"],k:"japones japanese cadena chain segunda mano secondhand thrift"},
  // BRONX
- {n:"Casa Amadeo",c:"drinks",h:"Longwood",b:"BX",lat:40.8192996,lng:-73.9015765,a:"786 Prospect Ave",bl:"Oldest Latin record store in NYC — say hi to Mike.",hrs:[null,"10:30-18:30","10:30-18:30","10:30-18:30","10:30-18:30","10:30-18:30","10:30-18:30"]},
+ {n:"Casa Amadeo",c:"vinyl",h:"Longwood",b:"BX",lat:40.8192996,lng:-73.9015765,a:"786 Prospect Ave",bl:"Oldest Latin record store in NYC — say hi to Mike.",hrs:[null,"10:30-18:30","10:30-18:30","10:30-18:30","10:30-18:30","10:30-18:30","10:30-18:30"],k:"salsa latin latino puertorriqueno boricua vinilo discos historico oldest"},
  // WESTCHESTER
- {n:"Walter's Hot Dogs",c:"food",h:"Mamaroneck",b:"WCH",lat:40.9430139,lng:-73.7469361,a:"937 Palmer Ave",bl:"Historic pagoda stand — butter-toasted split dogs (day trip).",hrs:["10:30-20:30","10:45-20:30","10:45-20:30","10:45-20:30","10:45-20:30","10:45-20:30","10:30-20:30"]},
+ {n:"Walter's Hot Dogs",c:"food",h:"Mamaroneck",b:"WCH",lat:40.9430139,lng:-73.7469361,a:"937 Palmer Ave",bl:"Historic pagoda stand — butter-toasted split dogs (day trip).",hrs:["10:30-20:30","10:45-20:30","10:45-20:30","10:45-20:30","10:45-20:30","10:45-20:30","10:30-20:30"],k:"perritos hot dogs salchichas historico historic pagoda excursion day trip"},
  // ICONIC BUILDINGS — MANHATTAN
- {n:"Empire State Building",c:"arch",h:"Midtown",b:"MAN",lat:40.748441,lng:-73.985664,a:"20 W 34th St",bl:"The 1931 Art Deco benchmark — limestone setbacks and a mooring mast that never moored."},
- {n:"Chrysler Building",c:"arch",h:"Midtown East",b:"MAN",lat:40.751652,lng:-73.975311,a:"405 Lexington Ave",bl:"Van Alen's 1930 steel crown — peak Art Deco, and the lobby is worth the detour."},
- {n:"Flatiron Building",c:"arch",h:"Flatiron",b:"MAN",lat:40.741061,lng:-73.989699,a:"175 5th Ave",bl:"Burnham's 1902 Beaux-Arts wedge, six feet wide at the prow."},
- {n:"Grand Central Terminal",c:"arch",h:"Midtown East",b:"MAN",lat:40.752726,lng:-73.977229,a:"89 E 42nd St",bl:"1913 Beaux-Arts cathedral of transit — look up at the backwards celestial ceiling."},
- {n:"Woolworth Building",c:"arch",h:"Tribeca",b:"MAN",lat:40.712411,lng:-74.008386,a:"233 Broadway",bl:"Cass Gilbert's 1913 'Cathedral of Commerce' — neo-Gothic terracotta, world's tallest til 1930."},
- {n:"Guggenheim Museum",c:"arch",h:"Upper East Side",b:"MAN",lat:40.782980,lng:-73.958970,a:"1071 5th Ave",bl:"Frank Lloyd Wright's 1959 spiral — walk down the ramp, not up."},
- {n:"Seagram Building",c:"arch",h:"Midtown East",b:"MAN",lat:40.758690,lng:-73.971840,a:"375 Park Ave",bl:"Mies van der Rohe, 1958 — bronze and travertine, and the plaza that rewrote zoning."},
- {n:"Lever House",c:"arch",h:"Midtown East",b:"MAN",lat:40.759560,lng:-73.972290,a:"390 Park Ave",bl:"1952 green-glass slab that brought the curtain wall to Park Ave."},
- {n:"New York Public Library",c:"arch",h:"Midtown",b:"MAN",lat:40.753182,lng:-73.982253,a:"476 5th Ave",bl:"1911 Beaux-Arts marble — Patience & Fortitude out front, Rose Reading Room upstairs."},
- {n:"Rockefeller Center",c:"arch",h:"Midtown",b:"MAN",lat:40.758740,lng:-73.978674,a:"45 Rockefeller Plaza",bl:"A whole Art Deco city block — limestone, bas-reliefs and Radio City next door."},
- {n:"St. Patrick's Cathedral",c:"arch",h:"Midtown",b:"MAN",lat:40.758465,lng:-73.976104,a:"5th Ave & E 50th St",bl:"Renwick's neo-Gothic marble pile, 1878 — free to walk in."},
- {n:"One World Trade Center",c:"arch",h:"Financial District",b:"MAN",lat:40.712742,lng:-74.013382,a:"285 Fulton St",bl:"1,776 ft of tapering glass, 2014 — the tallest in the hemisphere."},
- {n:"Bayard–Condict Building",c:"arch",h:"NoHo",b:"MAN",lat:40.725900,lng:-73.993800,a:"65 Bleecker St",bl:"Louis Sullivan's only New York building — terracotta angels holding up the cornice."},
- {n:"E.V. Haughwout Building",c:"arch",h:"SoHo",b:"MAN",lat:40.721700,lng:-74.000100,a:"488 Broadway",bl:"1857 cast iron with the world's first successful passenger elevator."},
- {n:"Little Singer Building",c:"arch",h:"SoHo",b:"MAN",lat:40.724700,lng:-73.997900,a:"561 Broadway",bl:"Ernest Flagg, 1904 — wrought-iron balconies and glass, a proto-curtain wall."},
- {n:"American Radiator Building",c:"arch",h:"Midtown",b:"MAN",lat:40.753000,lng:-73.984000,a:"40 W 40th St",bl:"Raymond Hood, 1924 — black brick and gold crown, meant to look like glowing coal."},
- {n:"Ford Foundation Building",c:"arch",h:"Midtown East",b:"MAN",lat:40.749900,lng:-73.970000,a:"320 E 43rd St",bl:"1967 Kevin Roche — a full indoor garden atrium open to the public on weekdays."},
- {n:"Jefferson Market Library",c:"arch",h:"Greenwich Village",b:"MAN",lat:40.734500,lng:-74.000600,a:"425 6th Ave",bl:"Victorian Gothic courthouse turned library — the clocktower over 6th Ave."},
- {n:"Eldridge Street Synagogue",c:"arch",h:"Chinatown",b:"MAN",lat:40.714600,lng:-73.993200,a:"12 Eldridge St",bl:"1887 Moorish Revival, restored — the rose window alone is worth the ticket."},
- {n:"Cathedral of St. John the Divine",c:"arch",h:"Morningside Heights",b:"MAN",lat:40.803800,lng:-73.961900,a:"1047 Amsterdam Ave",bl:"The world's largest Gothic cathedral, still unfinished after 130 years."},
- {n:"The Dakota",c:"arch",h:"Upper West Side",b:"MAN",lat:40.776700,lng:-73.976100,a:"1 W 72nd St",bl:"1884 gables and dormers facing the park — NYC's first luxury apartment house."},
- {n:"Hearst Tower",c:"arch",h:"Midtown West",b:"MAN",lat:40.765900,lng:-73.982900,a:"300 W 57th St",bl:"Norman Foster's faceted diagrid grafted onto a 1928 Art Deco base."},
- {n:"Vessel",c:"arch",h:"Hudson Yards",b:"MAN",lat:40.753800,lng:-74.002100,a:"20 Hudson Yards",bl:"Heatherwick's 150-ft climbable stair honeycomb — reopened 2024 with mesh barriers, ticketed."},
+ {n:"Empire State Building",c:"arch",h:"Midtown",b:"MAN",lat:40.748441,lng:-73.985664,a:"20 W 34th St",bl:"The 1931 Art Deco benchmark — limestone setbacks and a mooring mast that never moored.",k:"art deco rascacielos skyscraper mirador observation deck"},
+ {n:"Chrysler Building",c:"arch",h:"Midtown East",b:"MAN",lat:40.751652,lng:-73.975311,a:"405 Lexington Ave",bl:"Van Alen's 1930 steel crown — peak Art Deco, and the lobby is worth the detour.",k:"art deco rascacielos skyscraper aguja spire"},
+ {n:"Flatiron Building",c:"arch",h:"Flatiron",b:"MAN",lat:40.741061,lng:-73.989699,a:"175 5th Ave",bl:"Burnham's 1902 Beaux-Arts wedge, six feet wide at the prow.",k:"beaux arts plancha cuna wedge esquina"},
+ {n:"Grand Central Terminal",c:"arch",h:"Midtown East",b:"MAN",lat:40.752726,lng:-73.977229,a:"89 E 42nd St",bl:"1913 Beaux-Arts cathedral of transit — look up at the backwards celestial ceiling.",k:"estacion station tren train techo ceiling beaux arts"},
+ {n:"Woolworth Building",c:"arch",h:"Tribeca",b:"MAN",lat:40.712411,lng:-74.008386,a:"233 Broadway",bl:"Cass Gilbert's 1913 'Cathedral of Commerce' — neo-Gothic terracotta, world's tallest til 1930.",k:"gotico gothic catedral cathedral rascacielos terracota"},
+ {n:"Guggenheim Museum",c:"arch",h:"Upper East Side",b:"MAN",lat:40.782980,lng:-73.958970,a:"1071 5th Ave",bl:"Frank Lloyd Wright's 1959 spiral — walk down the ramp, not up.",k:"museo museum frank lloyd wright espiral spiral rampa"},
+ {n:"Seagram Building",c:"arch",h:"Midtown East",b:"MAN",lat:40.758690,lng:-73.971840,a:"375 Park Ave",bl:"Mies van der Rohe, 1958 — bronze and travertine, and the plaza that rewrote zoning.",k:"mies van der rohe modernismo modernist plaza bronce"},
+ {n:"Lever House",c:"arch",h:"Midtown East",b:"MAN",lat:40.759560,lng:-73.972290,a:"390 Park Ave",bl:"1952 green-glass slab that brought the curtain wall to Park Ave.",k:"muro cortina curtain wall cristal glass modernismo"},
+ {n:"New York Public Library",c:"arch",h:"Midtown",b:"MAN",lat:40.753182,lng:-73.982253,a:"476 5th Ave",bl:"1911 Beaux-Arts marble — Patience & Fortitude out front, Rose Reading Room upstairs.",k:"biblioteca library leones lions beaux arts sala lectura"},
+ {n:"Rockefeller Center",c:"arch",h:"Midtown",b:"MAN",lat:40.758740,lng:-73.978674,a:"45 Rockefeller Plaza",bl:"A whole Art Deco city block — limestone, bas-reliefs and Radio City next door.",k:"art deco radio city plaza murales"},
+ {n:"St. Patrick's Cathedral",c:"arch",h:"Midtown",b:"MAN",lat:40.758465,lng:-73.976104,a:"5th Ave & E 50th St",bl:"Renwick's neo-Gothic marble pile, 1878 — free to walk in.",k:"iglesia church catedral cathedral gotico gothic gratis free"},
+ {n:"One World Trade Center",c:"arch",h:"Financial District",b:"MAN",lat:40.712742,lng:-74.013382,a:"285 Fulton St",bl:"1,776 ft of tapering glass, 2014 — the tallest in the hemisphere.",k:"rascacielos skyscraper torre tower mirador"},
+ {n:"Bayard–Condict Building",c:"arch",h:"NoHo",b:"MAN",lat:40.725900,lng:-73.993800,a:"65 Bleecker St",bl:"Louis Sullivan's only New York building — terracotta angels holding up the cornice.",k:"louis sullivan terracota angeles art nouveau"},
+ {n:"E.V. Haughwout Building",c:"arch",h:"SoHo",b:"MAN",lat:40.721700,lng:-74.000100,a:"488 Broadway",bl:"1857 cast iron with the world's first successful passenger elevator.",k:"hierro fundido cast iron ascensor elevator historico"},
+ {n:"Little Singer Building",c:"arch",h:"SoHo",b:"MAN",lat:40.724700,lng:-73.997900,a:"561 Broadway",bl:"Ernest Flagg, 1904 — wrought-iron balconies and glass, a proto-curtain wall.",k:"hierro iron cristal glass balcones balconies"},
+ {n:"American Radiator Building",c:"arch",h:"Midtown",b:"MAN",lat:40.753000,lng:-73.984000,a:"40 W 40th St",bl:"Raymond Hood, 1924 — black brick and gold crown, meant to look like glowing coal.",k:"art deco ladrillo negro black brick oro gold"},
+ {n:"Ford Foundation Building",c:"arch",h:"Midtown East",b:"MAN",lat:40.749900,lng:-73.970000,a:"320 E 43rd St",bl:"1967 Kevin Roche — a full indoor garden atrium open to the public on weekdays.",k:"atrio atrium jardin garden interior modernismo"},
+ {n:"Jefferson Market Library",c:"arch",h:"Greenwich Village",b:"MAN",lat:40.734500,lng:-74.000600,a:"425 6th Ave",bl:"Victorian Gothic courthouse turned library — the clocktower over 6th Ave.",k:"biblioteca library gotico gothic torre reloj clocktower"},
+ {n:"Eldridge Street Synagogue",c:"arch",h:"Chinatown",b:"MAN",lat:40.714600,lng:-73.993200,a:"12 Eldridge St",bl:"1887 Moorish Revival, restored — the rose window alone is worth the ticket.",k:"sinagoga synagogue judio jewish morisco moorish roseton"},
+ {n:"Cathedral of St. John the Divine",c:"arch",h:"Morningside Heights",b:"MAN",lat:40.803800,lng:-73.961900,a:"1047 Amsterdam Ave",bl:"The world's largest Gothic cathedral, still unfinished after 130 years.",k:"catedral cathedral iglesia church gotico gothic enorme"},
+ {n:"The Dakota",c:"arch",h:"Upper West Side",b:"MAN",lat:40.776700,lng:-73.976100,a:"1 W 72nd St",bl:"1884 gables and dormers facing the park — NYC's first luxury apartment house.",k:"apartamentos apartments historico historic central park lennon"},
+ {n:"Hearst Tower",c:"arch",h:"Midtown West",b:"MAN",lat:40.765900,lng:-73.982900,a:"300 W 57th St",bl:"Norman Foster's faceted diagrid grafted onto a 1928 Art Deco base.",k:"norman foster diagrid moderno modern art deco"},
+ {n:"Vessel",c:"arch",h:"Hudson Yards",b:"MAN",lat:40.753800,lng:-74.002100,a:"20 Hudson Yards",bl:"Heatherwick's 150-ft climbable stair honeycomb — reopened 2024 with mesh barriers, ticketed.",k:"escaleras stairs hudson yards heatherwick escultura sculpture entradas tickets"},
  // ICONIC BUILDINGS — BROOKLYN
- {n:"Brooklyn Bridge",c:"arch",h:"Dumbo",b:"BK",lat:40.706100,lng:-73.996900,a:"Brooklyn Bridge Promenade",bl:"Roebling's 1883 granite towers and steel cables — walk it east to west at dusk."},
- {n:"Williamsburgh Savings Bank Tower",c:"arch",h:"Fort Greene",b:"BK",lat:40.684500,lng:-73.977600,a:"1 Hanson Pl",bl:"1929 Byzantine-Romanesque clocktower — Brooklyn's tallest for eight decades."},
+ {n:"Brooklyn Bridge",c:"arch",h:"Dumbo",b:"BK",lat:40.706100,lng:-73.996900,a:"Brooklyn Bridge Promenade",bl:"Roebling's 1883 granite towers and steel cables — walk it east to west at dusk.",k:"puente bridge caminar walk granito granite roebling"},
+ {n:"Williamsburgh Savings Bank Tower",c:"arch",h:"Fort Greene",b:"BK",lat:40.684500,lng:-73.977600,a:"1 Hanson Pl",bl:"1929 Byzantine-Romanesque clocktower — Brooklyn's tallest for eight decades.",k:"torre tower reloj clocktower rascacielos"},
  // ICONIC BUILDINGS — QUEENS
- {n:"TWA Flight Center",c:"arch",h:"JFK Airport",b:"QNS",lat:40.645900,lng:-73.776700,a:"JFK Airport, Terminal 5",bl:"Saarinen's 1962 swooping concrete terminal, now a hotel — the sunken lounge is intact."},
- {n:"New York State Pavilion",c:"arch",h:"Flushing Meadows",b:"QNS",lat:40.746200,lng:-73.844300,a:"Flushing Meadows Corona Park",bl:"Philip Johnson's 1964 World's Fair 'Tent of Tomorrow' — a magnificent ruin."},
+ {n:"TWA Flight Center",c:"arch",h:"JFK Airport",b:"QNS",lat:40.645900,lng:-73.776700,a:"JFK Airport, Terminal 5",bl:"Saarinen's 1962 swooping concrete terminal, now a hotel — the sunken lounge is intact.",k:"aeropuerto airport terminal hotel saarinen hormigon concrete"},
+ {n:"New York State Pavilion",c:"arch",h:"Flushing Meadows",b:"QNS",lat:40.746200,lng:-73.844300,a:"Flushing Meadows Corona Park",bl:"Philip Johnson's 1964 World's Fair 'Tent of Tomorrow' — a magnificent ruin.",k:"feria mundial worlds fair ruina ruin philip johnson"},
  // ICONIC BUILDINGS — BRONX
- {n:"Bronx County Courthouse",c:"arch",h:"Concourse",b:"BX",lat:40.827100,lng:-73.922400,a:"851 Grand Concourse",bl:"1934 Art Deco/Moderne limestone with monumental friezes on the Grand Concourse."}
+ {n:"Bronx County Courthouse",c:"arch",h:"Concourse",b:"BX",lat:40.827100,lng:-73.922400,a:"851 Grand Concourse",bl:"1934 Art Deco/Moderne limestone with monumental friezes on the Grand Concourse.",k:"art deco juzgado courthouse grand concourse frisos"}
 ];
 
 /* ============ OPENING HOURS ============
@@ -472,7 +491,21 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 rebuild();
 
 /* ============ STATE ============ */
-const state = { tab:"map", cats:new Set(), boro:"ALL", q:"", onlyFavs:false, onlyOpen:false, favs:new Set(["Zaidi's NYC","Casa Amadeo","Ebreo Vintage","Church Street Surplus","Greenwich Locksmiths"]) };
+/* Musts you start with; anything you heart in the app is merged on top and kept. */
+const SEED_FAVS=["Zaidi's NYC","Casa Amadeo","Ebreo Vintage","Church Street Surplus","Greenwich Locksmiths",
+  "Village Revival Records","Casey Rubber Stamps","Yan's Antique Jewelry","Philip Williams Posters",
+  "Whitney Museum","The Met","Vessel","Zapatería Mexico NY","Zapatería Mexico"];
+const LS_FAV='nyc_favs_v1', LS_DONE='nyc_done_v1';
+function loadSet(key,seed){
+  try{ const raw=localStorage.getItem(key); if(raw) return new Set(JSON.parse(raw)||[]); }catch(e){}
+  return new Set(seed||[]);
+}
+function saveSet(key,set){ try{ localStorage.setItem(key,JSON.stringify([...set])); }catch(e){} }
+
+const state = { tab:"map", cats:new Set(), boro:"ALL", q:"", onlyFavs:false, onlyOpen:false,
+  favs:loadSet(LS_FAV,SEED_FAVS), done:loadSet(LS_DONE,[]) };
+function toggleFav(n){ state.favs.has(n)?state.favs.delete(n):state.favs.add(n); saveSet(LS_FAV,state.favs); }
+function toggleDone(n){ state.done.has(n)?state.done.delete(n):state.done.add(n); saveSet(LS_DONE,state.done); }
 const gmap = p => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.n+' '+p.a+' New York')}`;
 
 /* ============ BUILD FILTER UI ============ */
@@ -499,16 +532,36 @@ borosEl.appendChild(openBtn);
   b.onclick=()=>{ state.boro=k; [...borosEl.children].forEach(c=>c.classList.toggle('on',c.dataset.b===k)); render(); };
   borosEl.appendChild(b);
 });
-document.getElementById('q').addEventListener('input',e=>{state.q=e.target.value.trim().toLowerCase();render();});
+document.getElementById('q').addEventListener('input',e=>{state.q=norm(e.target.value.trim());render();});
 
 /* ============ TABS ============ */
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   state.tab=t.dataset.tab;
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.dataset.view===state.tab));
-  document.getElementById('filters').style.display = (state.tab==='day'||state.tab==='add') ? 'none':'block';
+  document.getElementById('filters').style.display = ['day','add','musts'].includes(state.tab) ? 'none':'block';
+  if(state.tab==='musts') buildMustsUI();
   if(state.tab==='map'){ setTimeout(()=>{ if(map){map.invalidateSize(); fitMap();} },80); }
 });
+
+/* ============ SEARCH ============
+   Every spot carries bilingual keywords in p.k; the category adds its own synonyms,
+   and both sides of a comparison are stripped of accents so "cafe" finds "Café"
+   and "zapateria" finds "Zapatería". */
+const CATKW={
+  vintage:"vintage ropa segunda mano thrift secondhand usada moda fashion clothes",
+  food:"comida restaurante restaurant comer eat food cena dinner almuerzo lunch",
+  cafe:"cafe cafeteria coffee bakery panaderia pasteleria desayuno breakfast",
+  drinks:"bar bares copas drinks musica music live nightlife noche night",
+  vinyl:"vinilo vinilos discos records record store tienda de discos musica music lp tocadiscos",
+  shops:"tienda tiendas shop store curiosidades curiosities regalos gifts",
+  art:"arte art museo museum galeria gallery exposicion exhibition cultura culture",
+  market:"mercadillo mercado rastro flea market puestos stalls antiguedades antiques",
+  green:"parque park jardin garden verde green naturaleza nature",
+  arch:"edificio edificios building buildings arquitectura architecture landmark monumento rascacielos skyscraper"
+};
+const norm=s=>String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const haystack=p=>norm([p.n,p.h,BOROS[p.b]||'',CAT[p.c]?CAT[p.c].label:'',p.bl,p.k||'',CATKW[p.c]||''].join(' '));
 
 /* ============ FILTER LOGIC ============ */
 function match(p){
@@ -517,7 +570,7 @@ function match(p){
   if(state.onlyOpen && openInfo(p,new Date()).state==='closed') return false;
   if(state.cats.size && !state.cats.has(p.c)) return false;
   if(state.boro!=="ALL" && p.b!==state.boro) return false;
-  if(state.q){ const hay=(p.n+' '+p.h+' '+CAT[p.c].label+' '+p.bl).toLowerCase(); if(!hay.includes(state.q)) return false; }
+  if(state.q){ if(!haystack(p).includes(state.q)) return false; }
   return true;
 }
 
@@ -598,7 +651,7 @@ function drawList(){
       </div></article>`;
   }).join('');
   cardsEl.querySelectorAll('.fav').forEach(f=>f.onclick=()=>{
-    const n=f.dataset.n; state.favs.has(n)?state.favs.delete(n):state.favs.add(n); drawList(); drawMarkers();
+    toggleFav(f.dataset.n); drawList(); drawMarkers(); buildMustsUI();
   });
 }
 
@@ -800,7 +853,159 @@ function planDay(useMe){
   res.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-/* ============ GO ============ */
+/* ============ MUSTS: to-do list + split across days ============ */
+const mustState={days:3};
+const favSpots=()=>DATA.filter(p=>state.favs.has(p.n));
+
+/* day 1 is today (or now, if it's already past 11), day 2 tomorrow, and so on,
+   so the opening-hours check lands on the right weekday for each day out */
+function dayStart(offset){
+  const d=new Date(); d.setDate(d.getDate()+offset); d.setHours(11,0,0,0);
+  const now=new Date();
+  return (offset===0 && now>d) ? now : d;
+}
+const dayName=d=>d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'short'});
+
+/* k-means on lat/lng, then a capped reassignment so no single day gets everything */
+function clusterDays(spots,k){
+  k=Math.max(1,Math.min(k,spots.length));
+  if(k===1) return [spots.slice()];
+  const cent=[{lat:spots[0].lat,lng:spots[0].lng}];
+  while(cent.length<k){                    // farthest-point seeding = stable, spread-out starts
+    let best=spots[0],bd=-1;
+    spots.forEach(p=>{const d=Math.min(...cent.map(c=>haversine(c,p))); if(d>bd){bd=d;best=p;}});
+    cent.push({lat:best.lat,lng:best.lng});
+  }
+  for(let it=0;it<30;it++){
+    const g=cent.map(()=>[]);
+    spots.forEach(p=>{let bi=0,bd=Infinity;cent.forEach((c,i)=>{const d=haversine(c,p);if(d<bd){bd=d;bi=i;}});g[bi].push(p);});
+    let moved=false;
+    g.forEach((grp,i)=>{
+      if(!grp.length) return;
+      const la=grp.reduce((s,p)=>s+p.lat,0)/grp.length, ln=grp.reduce((s,p)=>s+p.lng,0)/grp.length;
+      if(Math.abs(la-cent[i].lat)>1e-7||Math.abs(ln-cent[i].lng)>1e-7) moved=true;
+      cent[i]={lat:la,lng:ln};
+    });
+    if(!moved) break;
+  }
+  // Loose balancing only. A tight cap would force far-apart spots into one day just to
+  // even out the counts, so we allow a natural big cluster (all of downtown, say) and
+  // only stop any single day from swallowing everything.
+  const cap=Math.max(3,Math.ceil(spots.length/k*1.6)), pairs=[], groups=cent.map(()=>[]), taken=new Set();
+  spots.forEach((p,pi)=>cent.forEach((c,ci)=>pairs.push([haversine(c,p),pi,ci])));
+  pairs.sort((a,b)=>a[0]-b[0]);
+  for(const[,pi,ci]of pairs){ if(taken.has(pi)||groups[ci].length>=cap) continue; groups[ci].push(spots[pi]); taken.add(pi); }
+  spots.forEach((p,pi)=>{ if(taken.has(pi))return; let bi=0; groups.forEach((g,i)=>{if(g.length<groups[bi].length)bi=i;}); groups[bi].push(p); taken.add(pi); });
+  return groups.filter(g=>g.length).sort((a,b)=>b.length-a.length);
+}
+
+/* order one day's stops on the clock, preferring whatever is open when you'd arrive */
+function orderDay(list,startAt){
+  const rest=list.slice(), out=[];
+  let clock=new Date(startAt), cur=rest.reduce((a,b)=>a,rest[0]);
+  // start from the most "cornered" stop so the walk doesn't double back
+  const cx=list.reduce((s,p)=>s+p.lat,0)/list.length, cy=list.reduce((s,p)=>s+p.lng,0)/list.length;
+  cur=rest.reduce((a,b)=>haversine({lat:cx,lng:cy},b)>haversine({lat:cx,lng:cy},a)?b:a);
+  rest.splice(rest.indexOf(cur),1);
+  out.push({p:cur,eta:new Date(clock)});
+  while(rest.length){
+    rest.sort((a,b)=>haversine(cur,a)-haversine(cur,b));
+    const etaOf=p=>new Date(clock.getTime()+(DWELL_MIN+walkMin(cur,p))*60000);
+    const openOne=rest.find(p=>p.c==='arch'||openInfo(p,etaOf(p)).state!=='closed');
+    const next=openOne||rest[0];
+    clock=etaOf(next);
+    out.push({p:next,eta:new Date(clock)});
+    rest.splice(rest.indexOf(next),1);
+    cur=next;
+  }
+  return out;
+}
+
+function buildMustsUI(){
+  const mp=document.getElementById('mustsPanel'); if(!mp) return;
+  const all=favSpots(), pending=all.filter(p=>!state.done.has(p.n)), done=all.filter(p=>state.done.has(p.n));
+  if(!all.length){
+    mp.innerHTML=`<div class="daycard"><h2>✅ Musts</h2>
+      <p class="help">No musts yet. Tap the ♡ on any card in the <b>List</b> tab and it lands here — saved on this device.</p></div>`;
+    return;
+  }
+  const row=p=>{const v=CAT[p.c]||{c:'#999',e:'📍',label:'—'}, isDone=state.done.has(p.n),
+    l=p.c==='arch'?null:hoursLabel(p,new Date());
+    return `<div class="todo ${isDone?'is-done':''}">
+      <button class="chk ${isDone?'on':''}" data-done="${esc(p.n)}" aria-label="Mark ${esc(p.n)} done">${isDone?'✓':''}</button>
+      <div class="info"><h4>${esc(p.n)}</h4>
+        <div class="meta">${v.e} ${v.label} · ${esc(p.h)}, ${BOROS[p.b]||''}</div>
+        ${l?`<div class="etaline"><span class="hb ${l.cls}">${l.txt}</span></div>`:''}</div>
+      <a class="tgo" href="${gmap(p)}" target="_blank" rel="noopener" aria-label="Directions to ${esc(p.n)}">↗</a>
+      <button class="del" data-unfav="${esc(p.n)}" aria-label="Remove ${esc(p.n)} from musts">♥</button></div>`;};
+
+  mp.innerHTML=`
+    <div class="daycard">
+      <h2>✅ Musts &nbsp;<span class="tally">${done.length}/${all.length} done</span></h2>
+      <p class="help">Everything you've hearted. Tick one off when you've done it — the list and the ticks stay on this device.</p>
+      <div class="routebtns" style="margin-top:2px">
+        <button class="btn" id="mustsOnMap">🗺 Show musts on the map</button>
+        ${done.length?`<button class="btn ghost" id="clearDone">↺ Untick all</button>`:''}
+      </div>
+      <label class="fld">To do — ${pending.length} left</label>
+      ${pending.length?pending.map(row).join(''):'<p class="help">All done. 🎉</p>'}
+      ${done.length?`<label class="fld">Done</label>${done.map(row).join('')}`:''}
+    </div>
+    <div class="daycard">
+      <h2>🗓 Split them across my days</h2>
+      <p class="help">How many days are left? We'll group the ${pending.length} pending must${pending.length!==1?'s':''} by area — one walkable cluster per day, each ordered around its opening hours.</p>
+      <label class="fld">Days left</label>
+      <div class="pillrow" id="dayCount">${[1,2,3,4,5,6,7].map(n=>`<button class="pill ${n===mustState.days?'on':''}" data-d="${n}">${n}</button>`).join('')}</div>
+      <button class="go" id="splitDays">Plan my ${mustState.days} day${mustState.days!==1?'s':''} →</button>
+      <div id="daysOut"></div>
+    </div>`;
+
+  mp.querySelectorAll('[data-done]').forEach(b=>b.onclick=()=>{ toggleDone(b.dataset.done); buildMustsUI(); drawList(); drawMarkers(); });
+  mp.querySelectorAll('[data-unfav]').forEach(b=>b.onclick=()=>{ toggleFav(b.dataset.unfav); buildMustsUI(); drawList(); drawMarkers(); });
+  mp.querySelectorAll('#dayCount .pill').forEach(b=>b.onclick=()=>{
+    mustState.days=+b.dataset.d;
+    mp.querySelectorAll('#dayCount .pill').forEach(x=>x.classList.toggle('on',x===b));
+    mp.querySelector('#splitDays').textContent=`Plan my ${mustState.days} day${mustState.days!==1?'s':''} →`;
+  });
+  mp.querySelector('#splitDays').onclick=splitDays;
+  mp.querySelector('#mustsOnMap').onclick=()=>{
+    state.onlyFavs=true; favBtn.classList.add('on');
+    document.querySelector('.tab[data-tab="map"]').click();
+    render();
+  };
+  const cd=mp.querySelector('#clearDone');
+  if(cd) cd.onclick=()=>{ state.done.clear(); saveSet(LS_DONE,state.done); buildMustsUI(); drawList(); };
+}
+
+function splitDays(){
+  const out=document.getElementById('daysOut');
+  const pending=favSpots().filter(p=>!state.done.has(p.n));
+  if(!pending.length){ out.innerHTML=`<div class="daycard"><p class="help">Nothing pending — everything's ticked off.</p></div>`; return; }
+  const groups=clusterDays(pending,mustState.days);
+  out.innerHTML=groups.map((g,i)=>{
+    const stops=orderDay(g,dayStart(i));
+    let km=0; for(let j=1;j<stops.length;j++) km+=haversine(stops[j-1].p,stops[j].p);
+    const wp=stops.map(s=>`${s.p.lat},${s.p.lng}`);
+    const multiBoro=new Set(g.map(p=>p.b)).size>1;
+    const transit=multiBoro||km>8;            // too spread out to walk — send Maps to transit instead
+    const legs=multiBoro?' end to end — spread across boroughs, so plan on the subway'
+              :transit?' end to end — a long chain, expect a subway hop or two':' on foot';
+    const url=`https://www.google.com/maps/dir/?api=1&origin=${wp[0]}&destination=${wp[wp.length-1]}&travelmode=${transit?'transit':'walking'}${wp.length>2?`&waypoints=${wp.slice(1,-1).join('|')}`:''}`;
+    const shut=stops.filter(s=>s.p.c!=='arch'&&openInfo(s.p,s.eta).state==='closed').length;
+    const areas=[...new Set(g.map(p=>p.h))].slice(0,3).join(' · ');
+    return `<div class="daycard">
+      <h2>Day ${i+1} — ${areas}</h2>
+      <p class="help">${dayName(dayStart(i))} · ${stops.length} stop${stops.length!==1?'s':''} · ${km.toFixed(1)} km${legs}.${shut?` <b style="color:#FF7A72">${shut} would be shut at that time — shift it to another day.</b>`:''}</p>
+      ${stops.map((s,j)=>{const v=CAT[s.p.c]||{c:'#999',e:'📍',label:'—'};const l=hoursLabel(s.p,s.eta);
+        return `<div class="stop"><div class="num" style="--c:${v.c}">${j+1}</div>
+          <div class="info"><h4>${esc(s.p.n)}</h4><div class="meta">${v.e} ${v.label} · ${esc(s.p.h)}</div>
+          <div class="etaline">~${clockTxt(s.eta)}${s.p.c==='arch'?'':` <span class="hb ${l.cls}">${l.txt}</span>`}</div></div></div>`;}).join('')}
+      <div class="routebtns"><a class="btn" href="${url}" target="_blank" rel="noopener">Open day ${i+1} in Google Maps ↗</a></div>
+    </div>`;
+  }).join('');
+  out.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
 /* ============ ADD A SPOT ============ */
 function buildAddUI(){
   const ap=document.getElementById('addPanel');
@@ -877,6 +1082,7 @@ function exportSpots(){
 
 buildDayUI();
 buildAddUI();
+buildMustsUI();
 render();
 function resizeMap(){ if(map){ map.invalidateSize(); fitMap(); } }
 [120,400,900,1600].forEach(t=>setTimeout(resizeMap,t));
