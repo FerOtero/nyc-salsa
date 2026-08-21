@@ -494,7 +494,7 @@ rebuild();
 /* Musts you start with; anything you heart in the app is merged on top and kept. */
 const SEED_FAVS=["Zaidi's NYC","Casa Amadeo","Ebreo Vintage","Church Street Surplus","Greenwich Locksmiths",
   "Village Revival Records","Casey Rubber Stamps","Yan's Antique Jewelry","Philip Williams Posters",
-  "Whitney Museum","The Met","Vessel","Zapatería Mexico NY","Zapatería Mexico"];
+  "Whitney Museum","The Met","Vessel","Zapatería Mexico"];
 const LS_FAV='nyc_favs_v1', LS_DONE='nyc_done_v1';
 function loadSet(key,seed){
   try{ const raw=localStorage.getItem(key); if(raw) return new Set(JSON.parse(raw)||[]); }catch(e){}
