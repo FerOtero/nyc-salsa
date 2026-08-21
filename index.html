@@ -168,6 +168,16 @@
     border:2px solid var(--line);background:transparent;color:#08201f;font-size:13px;font-weight:700;line-height:1}
   .chk.on{background:#3FD98A;border-color:#3FD98A}
   .chk:focus-visible{outline:3px solid var(--turq);outline-offset:2px}
+  /* weekend hours shown alongside a must's live status, everywhere */
+  .wknd{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+  .wk{font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:5px;white-space:nowrap;letter-spacing:.1px}
+  .wk.open{background:rgba(21,154,91,.16);color:#3FD98A}
+  .wk.closed{background:rgba(228,35,26,.16);color:#FF7A72}
+  .wk.unknown{background:rgba(245,233,204,.10);color:var(--paper2)}
+  .card .wknd,.pop .wknd{margin:0 0 8px}
+  .card .wk.open,.pop .wk.open{background:rgba(21,154,91,.15);color:#0F7A45}
+  .card .wk.closed,.pop .wk.closed{background:rgba(228,35,26,.13);color:#B01810}
+  .card .wk.unknown,.pop .wk.unknown{background:rgba(18,36,94,.09);color:#6a5a44}
   /* weekend-at-a-glance rows */
   .wkrow{padding:8px 2px;border-bottom:1px solid var(--line)}
   .wkrow:last-child{border-bottom:0}
@@ -490,6 +500,13 @@ function openInfo(p,when){
   return {state:'closed',opensAt:later.length?later[0][0]:null};
 }
 const SOON=60;                       // minutes that count as "closing soon"
+/* Musts carry their weekend hours everywhere their hours are shown, so a plan made
+   on a Tuesday doesn't fall apart on Saturday. Buildings and unknowns show nothing. */
+function weekendChips(p){
+  if(p.c==='arch'||!p.hrs||!state.favs.has(p.n)) return '';
+  const c=dow=>{const s=daySched(p,dow);return `<span class="wk ${s.k}">${dow===6?'Sat':'Sun'} ${s.t}</span>`;};
+  return `<div class="wknd">${c(6)}${c(0)}</div>`;
+}
 function hoursLabel(p,when){
   const i=openInfo(p,when);
   if(i.state==='unknown') return {cls:'hu',txt:'Hours unknown'};
@@ -613,7 +630,7 @@ const favBtnHtml=p=>{const on=state.favs.has(p.n);
 function popupHtml(p){
   const hb=p.c==='arch'?'':(l=>`<div class="hb ${l.cls}">${l.txt}</div>`)(hoursLabel(p,new Date()));
   return `<div class="pop" style="--c:${CAT[p.c].c}"><div class="pc">${CAT[p.c].e} ${CAT[p.c].label}</div>`+
-    `<h3>${p.n}</h3><div class="ph">${p.h} · ${BOROS[p.b]}</div>${hb}<p>${p.bl}</p>`+
+    `<h3>${p.n}</h3><div class="ph">${p.h} · ${BOROS[p.b]}</div>${hb}${weekendChips(p)}<p>${p.bl}</p>`+
     `<div class="popbtns"><a href="${gmap(p)}" target="_blank" rel="noopener">Open in Maps ↗</a>${favBtnHtml(p)}</div></div>`;
 }
 function drawMarkers(){
@@ -628,19 +645,25 @@ function drawMarkers(){
 }
 /* Heart straight from the popup. Re-rendering every marker would slam the popup
    shut, so only the one pin and the open popup are refreshed in place. */
-if(map) map.on('popupopen',e=>{
-  const el=e.popup.getElement(); if(!el) return;
+function wirePopupFav(popup){
+  const el=popup.getElement(); if(!el) return;
   const btn=el.querySelector('[data-favpop]'); if(!btn) return;
-  btn.onclick=()=>{
-    const mk=e.popup._source, p=mk&&mk._spot;
-    toggleFav(btn.dataset.favpop);
-    const on=state.favs.has(btn.dataset.favpop);
-    btn.classList.toggle('on',on);
-    btn.textContent=on?'♥ Must':'♡ Add to musts';
-    if(mk&&p) mk.setIcon(pinIcon(p));
+  btn.onclick=ev=>{
+    ev.stopPropagation();
+    const mk=popup._source, p=mk&&mk._spot; if(!p) return;
+    toggleFav(p.n);
+    mk.setIcon(pinIcon(p));
     drawList(); buildMustsUI(); updateCount();
+    // Swap the popup's markup only once this click has finished dispatching. Replacing
+    // the button mid-dispatch detaches it, and Leaflet then reads the click as a map
+    // click and shuts the popup.
+    setTimeout(()=>{
+      mk.setPopupContent(popupHtml(p));  // re-render so the weekend chips appear/disappear
+      wirePopupFav(popup);               // setPopupContent doesn't re-fire popupopen
+    },0);
   };
-});
+}
+if(map) map.on('popupopen',e=>wirePopupFav(e.popup));
 function hasFilter(){ return state.cats.size>0 || state.boro!=='ALL' || state.onlyFavs || !!state.q; }
 function fitMap(){
   if(!map || !hasFilter()) return;
@@ -689,6 +712,7 @@ function drawList(){
       <h3>${p.n}</h3>
       <div class="hood">${p.h} · ${BOROS[p.b]}</div>
       ${p.c==='arch'?'':(l=>`<div class="hb ${l.cls}">${l.txt}</div>`)(hoursLabel(p,new Date()))}
+      ${weekendChips(p)}
       <p>${p.bl}</p>
       <div class="foot">
         <a class="btn" href="${gmap(p)}" target="_blank" rel="noopener">Directions ↗</a>
@@ -811,7 +835,7 @@ function renderMyDay(){
     picks.map((p,i)=>{const v=CAT[p.c]||{c:'#999',e:'📍',label:'—'};const l=hoursLabel(p,etas[i]);
       return `<div class="stop"><div class="num" style="--c:${v.c}">${i+1}</div>
         <div class="info"><h4>${esc(p.n)}</h4><div class="meta">${v.e} ${v.label} · ${esc(p.h)}</div>
-        <div class="etaline">~${clockTxt(etas[i])}${p.c==='arch'?'':` <span class="hb ${l.cls}">${l.txt}</span>`}</div></div>
+        <div class="etaline">~${clockTxt(etas[i])}${p.c==='arch'?'':` <span class="hb ${l.cls}">${l.txt}</span>`}</div>${weekendChips(p)}</div>
         <button class="del" data-i="${i}" aria-label="Remove ${esc(p.n)}">✕</button></div>`;}).join('')+
     `<div class="routebtns">
        ${picks.length>1?`<a class="btn" href="${routeUrl}" target="_blank" rel="noopener">Open route in Google Maps ↗</a>`:''}
@@ -881,7 +905,7 @@ function planDay(useMe){
     ${route.map((p,i)=>{const v=CAT[p.c];const l=hoursLabel(p,etas[i]);
       return `<div class="stop"><div class="num" style="--c:${v.c}">${i+1}</div>
       <div class="info"><h4>${p.n}</h4><div class="meta">${v.e} ${v.label} · ${p.h}</div>
-      <div class="etaline">~${clockTxt(etas[i])}${p.c==='arch'?'':` <span class="hb ${l.cls}">${l.txt}</span>`}</div>
+      <div class="etaline">~${clockTxt(etas[i])}${p.c==='arch'?'':` <span class="hb ${l.cls}">${l.txt}</span>`}</div>${weekendChips(p)}
       <p>${p.bl}</p></div></div>`;}).join('')}
     <div class="routebtns">
       <a class="btn" href="${routeUrl}" target="_blank" rel="noopener">Open route in Google Maps ↗</a>
@@ -995,7 +1019,8 @@ function buildMustsUI(){
     return `<div class="todo ${isDone?'is-done':''}">
       <button class="chk ${isDone?'on':''}" data-done="${esc(p.n)}" aria-label="Mark ${esc(p.n)} done">${isDone?'✓':''}</button>
       <div class="info"><h4>${esc(p.n)}</h4>
-        <div class="meta"><span class="mt">${v.e} ${esc(p.h)}</span>${l?`<span class="hb ${l.cls}">${l.txt}</span>`:''}</div></div>
+        <div class="meta"><span class="mt">${v.e} ${esc(p.h)}</span>${l?`<span class="hb ${l.cls}">${l.txt}</span>`:''}</div>
+        ${weekendChips(p)}</div>
       <a class="tgo" href="${gmap(p)}" target="_blank" rel="noopener" aria-label="Directions to ${esc(p.n)}">↗</a>
       <button class="del" data-unfav="${esc(p.n)}" aria-label="Remove ${esc(p.n)} from musts">♥</button></div>`;};
 
@@ -1086,7 +1111,7 @@ function splitDays(){
       ${stops.map((s,j)=>{const v=CAT[s.p.c]||{c:'#999',e:'📍',label:'—'};const l=hoursLabel(s.p,s.eta);
         return `<div class="stop"><div class="num" style="--c:${v.c}">${j+1}</div>
           <div class="info"><h4>${esc(s.p.n)}</h4><div class="meta">${v.e} ${v.label} · ${esc(s.p.h)}</div>
-          <div class="etaline">~${clockTxt(s.eta)}${s.p.c==='arch'?'':` <span class="hb ${l.cls}">${l.txt}</span>`}</div></div></div>`;}).join('')}
+          <div class="etaline">~${clockTxt(s.eta)}${s.p.c==='arch'?'':` <span class="hb ${l.cls}">${l.txt}</span>`}</div>${weekendChips(s.p)}</div></div>`;}).join('')}
       <div class="routebtns"><a class="btn" href="${url}" target="_blank" rel="noopener">Open day ${i+1} in Google Maps ↗</a></div>
     </div>`;
   }).join('');
