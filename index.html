@@ -153,19 +153,23 @@
   .etaline{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:5px;font-size:11.5px;font-weight:700;color:var(--turq)}
   /* ---------- MUSTS / TO-DO ---------- */
   .tally{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:var(--paper2);letter-spacing:0}
-  .todo{display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1px dashed var(--line)}
-  .todo:last-child{border-bottom:0}
+  .todolist{margin-top:4px;border-top:1px solid var(--line)}
+  .todo{display:flex;gap:9px;align-items:center;padding:7px 2px;border-bottom:1px solid var(--line)}
   .todo .info{flex:1;min-width:0}
-  .todo .info h4{font-family:'Chango';font-weight:400;font-size:17px;margin:1px 0 2px;letter-spacing:.3px}
-  .todo .info .meta{font-size:11.5px;color:var(--paper2);font-weight:600}
-  .todo.is-done{opacity:.5}
+  .todo .info h4{font-family:'DM Sans',sans-serif;font-weight:700;font-size:14px;margin:0;letter-spacing:0;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .todo .info .meta{display:flex;align-items:center;gap:5px;flex-wrap:nowrap;overflow:hidden;
+    font-size:11px;color:var(--paper2);font-weight:600;margin-top:1px;white-space:nowrap}
+  .todo .info .meta .mt{overflow:hidden;text-overflow:ellipsis}
+  .todo .hb{flex:0 0 auto;font-size:9.5px;padding:2px 6px}
+  .todo.is-done{opacity:.45}
   .todo.is-done .info h4{text-decoration:line-through}
-  .chk{flex:0 0 auto;width:26px;height:26px;margin-top:2px;border-radius:8px;cursor:pointer;
-    border:2px solid var(--line);background:transparent;color:#08201f;font-size:15px;font-weight:700;line-height:1}
+  .chk{flex:0 0 auto;width:22px;height:22px;border-radius:6px;cursor:pointer;
+    border:2px solid var(--line);background:transparent;color:#08201f;font-size:13px;font-weight:700;line-height:1}
   .chk.on{background:#3FD98A;border-color:#3FD98A}
   .chk:focus-visible{outline:3px solid var(--turq);outline-offset:2px}
-  .tgo{flex:0 0 auto;text-decoration:none;color:var(--gold);font-size:16px;font-weight:700;padding:2px 4px}
-  .todo .del{color:var(--pink);border-color:var(--line);font-size:13px;margin-top:1px}
+  .tgo{flex:0 0 auto;text-decoration:none;color:var(--gold);font-size:14px;font-weight:700;padding:2px 3px}
+  .todo .del{flex:0 0 auto;width:24px;height:24px;color:var(--pink);border-color:var(--line);font-size:12px;margin:0}
   .todo .del:active{background:var(--pink);border-color:var(--pink);color:#0A2560}
   .routebtns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
   .inp{width:100%;font-family:inherit;font-size:15px;color:#12245E;background:var(--paper);border:2px solid #12245E;border-radius:10px;padding:11px 12px;margin-top:2px}
@@ -214,6 +218,10 @@
   .pop .ph{font-size:11.5px;color:#6a5a44;font-weight:700}
   .pop p{font-size:12.5px;margin:6px 0 8px;color:#3a2b1c;max-width:210px}
   .pop a{font-family:'Chango';font-size:10px;text-transform:uppercase;text-decoration:none;color:#12245E;background:var(--gold);border:2px solid #12245E;padding:6px 10px;border-radius:8px;display:inline-block}
+  .popbtns{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .popfav{font-family:'Chango';font-size:10px;text-transform:uppercase;color:#12245E;background:transparent;
+    border:2px solid #12245E;padding:6px 9px;border-radius:8px;cursor:pointer;line-height:1}
+  .popfav.on{background:var(--pink);color:#fff;border-color:#12245E}
   .leaflet-control-attribution{font-size:9px}
   .legend{position:absolute;left:10px;bottom:14px;background:rgba(10,37,96,.9);border:2px solid var(--line);border-radius:12px;padding:7px 9px;font-size:9.5px;z-index:500;max-width:140px;cursor:pointer}
   .legend b{font-family:'Chango';font-size:8.5px;letter-spacing:.5px;display:block;color:var(--gold)}
@@ -585,17 +593,40 @@ try{
   const el=document.getElementById('map');
   if(el) el.innerHTML='<div style="padding:24px;color:#F5E9CC;font-family:DM Sans,sans-serif;line-height:1.4">The map needs an internet connection to load. The <b>List</b> and <b>Day Trip</b> tabs still work — tap them above.</div>';
 }
+const pinIcon=p=>L.divIcon({className:'',html:`<div class="pin ${state.favs.has(p.n)?'fav':''}" style="background:${CAT[p.c].c}"></div>`,iconSize:[20,20],iconAnchor:[10,18],popupAnchor:[0,-16]});
+const favBtnHtml=p=>{const on=state.favs.has(p.n);
+  return `<button class="popfav ${on?'on':''}" data-favpop="${esc(p.n)}">${on?'♥ Must':'♡ Add to musts'}</button>`;};
+function popupHtml(p){
+  const hb=p.c==='arch'?'':(l=>`<div class="hb ${l.cls}">${l.txt}</div>`)(hoursLabel(p,new Date()));
+  return `<div class="pop" style="--c:${CAT[p.c].c}"><div class="pc">${CAT[p.c].e} ${CAT[p.c].label}</div>`+
+    `<h3>${p.n}</h3><div class="ph">${p.h} · ${BOROS[p.b]}</div>${hb}<p>${p.bl}</p>`+
+    `<div class="popbtns"><a href="${gmap(p)}" target="_blank" rel="noopener">Open in Maps ↗</a>${favBtnHtml(p)}</div></div>`;
+}
 function drawMarkers(){
   if(!map) return;
   markers.forEach(m=>map.removeLayer(m)); markers=[];
   DATA.filter(match).forEach(p=>{
-    const icon=L.divIcon({className:'',html:`<div class="pin ${state.favs.has(p.n)?'fav':''}" style="background:${CAT[p.c].c}"></div>`,iconSize:[20,20],iconAnchor:[10,18],popupAnchor:[0,-16]});
-    const m=L.marker([p.lat,p.lng],{icon}).addTo(map);
-    const hb=p.c==='arch'?'':(l=>`<div class="hb ${l.cls}">${l.txt}</div>`)(hoursLabel(p,new Date()));
-    m.bindPopup(`<div class="pop" style="--c:${CAT[p.c].c}"><div class="pc">${CAT[p.c].e} ${CAT[p.c].label}</div><h3>${p.n}</h3><div class="ph">${p.h} · ${BOROS[p.b]}</div>${hb}<p>${p.bl}</p><a href="${gmap(p)}" target="_blank" rel="noopener">Open in Maps ↗</a></div>`);
+    const m=L.marker([p.lat,p.lng],{icon:pinIcon(p)}).addTo(map);
+    m._spot=p;
+    m.bindPopup(popupHtml(p));
     markers.push(m);
   });
 }
+/* Heart straight from the popup. Re-rendering every marker would slam the popup
+   shut, so only the one pin and the open popup are refreshed in place. */
+if(map) map.on('popupopen',e=>{
+  const el=e.popup.getElement(); if(!el) return;
+  const btn=el.querySelector('[data-favpop]'); if(!btn) return;
+  btn.onclick=()=>{
+    const mk=e.popup._source, p=mk&&mk._spot;
+    toggleFav(btn.dataset.favpop);
+    const on=state.favs.has(btn.dataset.favpop);
+    btn.classList.toggle('on',on);
+    btn.textContent=on?'♥ Must':'♡ Add to musts';
+    if(mk&&p) mk.setIcon(pinIcon(p));
+    drawList(); buildMustsUI(); updateCount();
+  };
+});
 function hasFilter(){ return state.cats.size>0 || state.boro!=='ALL' || state.onlyFavs || !!state.q; }
 function fitMap(){
   if(!map || !hasFilter()) return;
@@ -934,8 +965,7 @@ function buildMustsUI(){
     return `<div class="todo ${isDone?'is-done':''}">
       <button class="chk ${isDone?'on':''}" data-done="${esc(p.n)}" aria-label="Mark ${esc(p.n)} done">${isDone?'✓':''}</button>
       <div class="info"><h4>${esc(p.n)}</h4>
-        <div class="meta">${v.e} ${v.label} · ${esc(p.h)}, ${BOROS[p.b]||''}</div>
-        ${l?`<div class="etaline"><span class="hb ${l.cls}">${l.txt}</span></div>`:''}</div>
+        <div class="meta"><span class="mt">${v.e} ${esc(p.h)}</span>${l?`<span class="hb ${l.cls}">${l.txt}</span>`:''}</div></div>
       <a class="tgo" href="${gmap(p)}" target="_blank" rel="noopener" aria-label="Directions to ${esc(p.n)}">↗</a>
       <button class="del" data-unfav="${esc(p.n)}" aria-label="Remove ${esc(p.n)} from musts">♥</button></div>`;};
 
@@ -948,8 +978,8 @@ function buildMustsUI(){
         ${done.length?`<button class="btn ghost" id="clearDone">↺ Untick all</button>`:''}
       </div>
       <label class="fld">To do — ${pending.length} left</label>
-      ${pending.length?pending.map(row).join(''):'<p class="help">All done. 🎉</p>'}
-      ${done.length?`<label class="fld">Done</label>${done.map(row).join('')}`:''}
+      ${pending.length?`<div class="todolist">${pending.map(row).join('')}</div>`:'<p class="help">All done. 🎉</p>'}
+      ${done.length?`<label class="fld">Done</label><div class="todolist">${done.map(row).join('')}</div>`:''}
     </div>
     <div class="daycard">
       <h2>🗓 Split them across my days</h2>
